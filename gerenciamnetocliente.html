@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Clientes - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            color: #007bff;
+            text-align: center;
+        }
+        .list-group-item {
+            cursor: pointer;
+        }
+        .list-group-item:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gerenciamento de Clientes - Utopia</h1>
+    </header>
+    <div class="container">
+        <h2>Lista de Clientes</h2>
+        <ul id="listaClientes" class="list-group"></ul>
+    </div>
+
+    <!-- Modal para editar cliente -->
+    <div class="modal fade" id="modalEditarCliente" tabindex="-1" role="dialog" aria-labelledby="modalEditarClienteLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarClienteLabel">Editar Cliente</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarCliente">
+                        <div class="form-group">
+                            <label for="nomeEdit">Nome</label>
+                            <input type="text" class="form-control" id="nomeEdit" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emailEdit">E-mail</label>
+                            <input type="email" class="form-control" id="emailEdit">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefoneEdit">Telefone</label>
+                            <input type="tel" class="form-control" id="telefoneEdit">
+                        </div>
+                        <div class="form-group">
+                            <label for="enderecoEdit">Endereço</label>
+                            <input type="text" class="form-control" id="enderecoEdit">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidadeEdit">Cidade</label>
+                            <input type="text" class="form-control" id="cidadeEdit">
+                        </div>
+                        <div class="form-group">
+                            <label for="estadoEdit">Estado</label>
+                            <select class="form-control" id="estadoEdit">
+                                <option value="AC">Acre</option>
+                                <option value="AL">Alagoas</option>
+                                <option value="AP">Amapá</option>
+                                <option value="AM">Amazonas</option>
+                                <option value="BA">Bahia</option>
+                                <option value="CE">Ceará</option>
+                                <option value="DF">Distrito Federal</option>
+                                <option value="ES">Espírito Santo</option>
+                                <option value="GO">Goiás</option>
+                                <option value="MA">Maranhão</option>
+                                <option value="MT">Mato Grosso</option>
+                                <option value="MS">Mato Grosso do Sul</option>
+                                <option value="MG">Minas Gerais</option>
+                                <option value="PA">Pará</option>
+                                <option value="PB">Paraíba</option>
+                                <option value="PR">Paraná</option>
+                                <option value="PE">Pernambuco</option>
+                                <option value="PI">Piauí</option>
+                                <option value="RJ">Rio de Janeiro</option>
+                                <option value="RN">Rio Grande do Norte</option>
+                                <option value="RS">Rio Grande do Sul</option>
+                                <option value="RO">Rondônia</option>
+                                <option value="RR">Roraima</option>
+                                <option value="SC">Santa Catarina</option>
+                                <option value="SP">São Paulo</option>
+                                <option value="SE">Sergipe</option>
+                                <option value="TO">Tocantins</option>
+                                <!-- Opções para todos os estados do Brasil -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cepEdit">CEP</label>
+                            <input type="text" class="form-control" id="cepEdit">
+                        </div>
+                        <input type="hidden" id="clienteIndex">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarEdicao">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Função para carregar os clientes do localStorage e exibi-los na lista
+        function carregarClientes() {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            let listaClientes = $('#listaClientes');
+            listaClientes.empty();
+            clientes.forEach(function(cliente, index) {
+                listaClientes.append(`<li class="list-group-item" id="cliente-${index}">${cliente.nome} <button class="btn btn-primary btn-sm editar" data-index="${index}">Editar</button></li>`);
+            });
+
+            // Adicionar evento de clique em cada cliente para exibir detalhes
+            listaClientes.on('click', '.editar', function() {
+                let index = $(this).data('index');
+                editarCliente(clientes[index], index);
+            });
+        }
+
+        // Função para exibir os detalhes de um cliente selecionado
+        function editarCliente(cliente, index) {
+            $('#nomeEdit').val(cliente.nome);
+            $('#emailEdit').val(cliente.email);
+            $('#telefoneEdit').val(cliente.telefone);
+            $('#enderecoEdit').val(cliente.endereco);
+            $('#cidadeEdit').val(cliente.cidade);
+            $('#estadoEdit').val(cliente.estado);
+            $('#cepEdit').val(cliente.cep);
+            $('#clienteIndex').val(index);
+            $('#modalEditarCliente').modal('show');
+        }
+
+        // Função para salvar as alterações do cliente
+        $('#btnSalvarEdicao').click(function() {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            let index = $('#clienteIndex').val();
+            clientes[index].nome = $('#nomeEdit').val();
+            clientes[index].email = $('#emailEdit').val();
+            clientes[index].telefone = $('#telefoneEdit').val();
+            clientes[index].endereco = $('#enderecoEdit').val();
+            clientes[index].cidade = $('#cidadeEdit').val();
+            clientes[index].estado = $('#estadoEdit').val();
+            clientes[index].cep = $('#cepEdit').val();
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+            $('#modalEditarCliente').modal('hide');
+            carregarClientes(); // Atualiza a lista de clientes
+            alert('Alterações salvas com sucesso!');
+        });
+
+        // Carregar os clientes ao carregar a página
+        $(document).ready(function() {
+            carregarClientes();
+        });
+    </script>
+</body>
+</html>
