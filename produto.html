@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produto - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        form {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        form h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Utopia</h1>
+    </header>
+    <div class="container">
+        <form id="formProduto">
+            <h1 class="mb-4">Cadastro de Produto</h1>
+            <div class="form-group">
+                <label for="produtoNome">Nome do Produto</label>
+                <select class="form-control" id="produtoNome" required>
+                    <option value="">Selecione o produto</option>
+                    <option value="Mochila Infantil">Mochila Infantil</option>
+                    <option value="Mochila Juvenil">Mochila Juvenil</option>
+                    <option value="Lancheira">Lancheira</option>
+                    <option value="Porta lápis">Porta lápis</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="produtoTipo">Tipo do Produto</label>
+                <select class="form-control" id="produtoTipo" required>
+                    <option value="">Selecione o tipo</option>
+                    <option value="Costa">Costa</option>
+                    <option value="Carrinho">Carrinho</option>
+                    <option value="Furada">Furada</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="form-group" id="personagemInput">
+                <label for="produtoPersonagem">Personagem</label>
+                <div class="input-group">
+                    <select class="form-control" id="produtoPersonagem" required>
+                        <option value="">Selecione o personagem</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary" id="adicionarPersonagem">Adicionar Personagem</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Quantidade</th>
+                            <th>Descrição</th>
+                            <th>Código</th>
+                            <th>Tamanho</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="number" class="form-control" id="quantidade" required></td>
+                            <td><input type="text" class="form-control" id="descricao" required></td>
+                            <td><input type="text" class="form-control" id="codigo" required></td>
+                            <td>
+                                <select class="form-control" id="tamanho">
+                                    <option value="P">P</option>
+                                    <option value="M">M</option>
+                                    <option value="G">G</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control" id="valor" required></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar Produto</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Função para enviar os dados do produto para o localStorage
+        function cadastrarProduto(produto) {
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            produtos.push(produto);
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+        }
+
+        // Manipular envio do formulário
+        $('#formProduto').submit(function(event) {
+            event.preventDefault();
+            let produto = {
+                nome: $('#produtoNome').val(),
+                tipo: $('#produtoTipo').val(),
+                quantidade: $('#quantidade').val(),
+                descricao: $('#descricao').val(),
+                codigo: $('#codigo').val(),
+                tamanho: $('#tamanho').val(),
+                valor: $('#valor').val(),
+                personagem: $('#produtoPersonagem').val()
+            };
+            cadastrarProduto(produto);
+            alert('Produto cadastrado com sucesso!');
+            // Limpar formulário após o cadastro
+            $('#formProduto')[0].reset();
+        });
+
+        // Função para preencher o seletor de personagens com opções do localStorage
+        function preencherSeletorPersonagens() {
+            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+            $('#produtoPersonagem').empty().append('<option value="">Selecione o personagem</option>');
+            personagens.forEach(function(personagem) {
+                $('#produtoPersonagem').append($('<option>', {
+                    value: personagem,
+                    text: personagem
+                }));
+            });
+        }
+
+        // Função para adicionar um novo personagem ao localStorage e à lista de opções
+        function adicionarPersonagem() {
+            let personagemInput = $('#personagemInput');
+            if ($('#personagemNome').length === 0) {
+                personagemInput.append('<input type="text" class="form-control" id="personagemNome" placeholder="Digite o nome do personagem">');
+                $('#adicionarPersonagem').text('Salvar Personagem');
+            } else {
+                let nomePersonagem = $('#personagemNome').val();
+                if (nomePersonagem.trim() !== '') {
+                    let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+                    if (!personagens.includes(nomePersonagem)) {
+                        personagens.push(nomePersonagem);
+                        localStorage.setItem('personagens', JSON.stringify(personagens));
+                        // Atualizar a lista de opções de personagens
+                        preencherSeletorPersonagens();
+                    }
+                    $('#personagemNome').remove();
+                    $('#adicionarPersonagem').text('Adicionar Personagem');
+                }
+            }
+        }
+
+        // Manipular evento de clicar no botão "Adicionar Personagem"
+        $('#adicionarPersonagem').click(function() {
+            adicionarPersonagem();
+        });
+
+        // Chamar a função para preencher o seletor de personagens ao carregar a página
+        $(document).ready(function() {
+            preencherSeletorPersonagens();
+        });
+    </script>
+</body>
+</html>

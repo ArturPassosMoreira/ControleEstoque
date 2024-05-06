@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Cliente - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        form {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        form h2 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Utopia</h1>
+    </header>
+    <div class="container">
+        <form id="formCliente">
+            <h2>Cadastro de Cliente</h2>
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input type="text" class="form-control" id="nome" placeholder="Digite o nome do cliente" required>
+            </div>
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" class="form-control" id="email" placeholder="Digite o e-mail do cliente">
+            </div>
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" class="form-control" id="telefone" placeholder="Digite o telefone do cliente">
+            </div>
+            <div class="form-group">
+                <label for="endereco">Endereço</label>
+                <input type="text" class="form-control" id="endereco" placeholder="Digite o endereço do cliente">
+            </div>
+            <div class="form-group">
+                <label for="cidade">Cidade</label>
+                <input type="text" class="form-control" id="cidade" placeholder="Digite a cidade do cliente">
+            </div>
+            <div class="form-group">
+                <label for="estado">Estado</label>
+                <select class="form-control" id="estado">
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Pará</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                    <!-- Opções para todos os estados do Brasil -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cep">CEP</label>
+                <input type="text" class="form-control" id="cep" placeholder="Digite o CEP do cliente">
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Função para enviar os dados do cliente para o localStorage
+        function cadastrarCliente(cliente) {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            clientes.push(cliente);
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+        }
+
+        // Manipular envio do formulário
+        $('#formCliente').submit(function(event) {
+            event.preventDefault();
+            let cliente = {
+                nome: $('#nome').val(),
+                email: $('#email').val(),
+                telefone: $('#telefone').val(),
+                endereco: $('#endereco').val(),
+                cidade: $('#cidade').val(),
+                estado: $('#estado').val(),
+                cep: $('#cep').val()
+            };
+            cadastrarCliente(cliente);
+            alert('Cliente cadastrado com sucesso!');
+            window.location.href="index.html"
+            // Limpar formulário após o cadastro
+            $('#formCliente')[0].reset();
+        });
+    </script>
+</body>
+</html>
