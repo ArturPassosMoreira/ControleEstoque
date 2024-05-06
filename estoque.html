@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque de Produtos - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Estoque de Produtos - Utopia</h1>
+    </header>
+    <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nome do Produto</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Descrição</th>
+                    <th>Código</th>
+                    <th>Tamanho</th>
+                    <th>Valor</th>
+                    <th>Personagem</th>
+                </tr>
+            </thead>
+            <tbody id="estoqueBody">
+                <!-- Aqui serão exibidos os produtos cadastrados -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script>
+        // Função para carregar o estoque de produtos
+        function carregarEstoque() {
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let estoqueBody = $('#estoqueBody');
+            estoqueBody.empty();
+            let produtosInfantis = {};
+            produtos.forEach(function(produto) {
+                // Verifica se o produto é infantil
+                if (produto.nome.includes('Infantil')) {
+                    // Verifica se o produto infantil já existe no objeto
+                    if (produtosInfantis[produto.codigo]) {
+                        produtosInfantis[produto.codigo].quantidade += parseInt(produto.quantidade);
+                    } else {
+                        produtosInfantis[produto.codigo] = { ...produto };
+                    }
+                } else {
+                    // Adiciona outros produtos diretamente na tabela
+                    estoqueBody.append(`
+                        <tr>
+                            <td>${produto.nome}</td>
+                            <td>${produto.tipo}</td>
+                            <td>${produto.quantidade}</td>
+                            <td>${produto.descricao}</td>
+                            <td>${produto.codigo}</td>
+                            <td>${produto.tamanho}</td>
+                            <td>${produto.valor}</td>
+                            <td>${produto.personagem}</td>
+                        </tr>
+                    `);
+                }
+            });
+            // Adiciona produtos infantis na tabela
+            Object.values(produtosInfantis).forEach(function(produto) {
+                estoqueBody.append(`
+                    <tr>
+                        <td>${produto.nome}</td>
+                        <td>${produto.tipo}</td>
+                        <td>${produto.quantidade}</td>
+                        <td>${produto.descricao}</td>
+                        <td>${produto.codigo}</td>
+                        <td>${produto.tamanho}</td>
+                        <td>${produto.valor}</td>
+                        <td>${produto.personagem}</td>
+                    </tr>
+                `);
+            });
+        }
+
+        // Carregar o estoque ao carregar a página
+        $(document).ready(function() {
+            carregarEstoque();
+        });
+    </script>
+</body>
+</html>
