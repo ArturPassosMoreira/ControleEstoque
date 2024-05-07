@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque - Utopia</title>
+    <title>Histórico de Cadastro - Utopia</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         header {
@@ -15,9 +15,7 @@
         body {
             background-color: #f8f9fa;
         }
-        .container {
-            margin-top: 50px;
-        }
+       
         table {
             width: 100%;
             border-collapse: collapse;
@@ -31,24 +29,35 @@
             background-color: #007bff;
             color: #ffffff;
         }
+        @media (max-width: 768px) {
+            table {
+                width: auto; /* Define a largura automática da tabela em dispositivos menores */
+            }
+            .container{
+                margin-top: 10px;
+                margin-right:25%;
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Estoque - Utopia</h1>
+        <h1>Histórico de Cadastro - Utopia</h1>
     </header>
     <div class="container">
         <!-- Tabela para exibir os produtos em estoque -->
-        <table>
+        <table class="table">
             <thead>
                 <tr>
+                    <th>Registro</th>
                     <th>Nome</th>
                     <th>Tipo</th>
                     <th>Personagem</th>
-                    <th>Quantidade</th>
-                    <th>Tamanho</th>
+                    <th>Qtd</th>
+                    <th>Tam</th>
                     <th>Repartições</th>
-                    <th>Data do Cadastro</th>
+                    <th>Data </th>
                 </tr>
             </thead>
             <tbody id="estoqueBody">
@@ -68,21 +77,9 @@
             let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
             let estoqueBody = $('#estoqueBody');
             estoqueBody.empty(); // Limpa o corpo da tabela
-            let estoqueIndex = {}; // Objeto para mapear produtos pelo nome, tipo, tamanho e personagem
-            produtos.forEach(function(produto) {
-                // Verifica se o produto já está no mapeamento
-                let key = produto.nome + produto.tipo + produto.tamanho + produto.personagem;
-                if (estoqueIndex[key]) {
-                    // Se já existe, soma a quantidade
-                    estoqueIndex[key].quantidade += parseInt(produto.quantidade);
-                } else {
-                    // Se não existe, adiciona ao mapeamento
-                    estoqueIndex[key] = produto;
-                }
-            });
-            // Adiciona os produtos únicos à tabela
-            Object.values(estoqueIndex).forEach(function(produto) {
+            produtos.forEach(function(produto, index) {
                 let newRow = $('<tr>');
+                newRow.append('<td>' + (index + 1) + '</td>'); // Exibir o número de registro
                 newRow.append('<td>' + produto.nome + '</td>');
                 newRow.append('<td>' + produto.tipo + '</td>');
                 newRow.append('<td>' + produto.personagem + '</td>');

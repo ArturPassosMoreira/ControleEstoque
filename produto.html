@@ -144,6 +144,7 @@
     // Função para enviar os dados do produto para a página de estoque
     function enviarParaEstoque(produto) {
         let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+        produto.registro = produtos.length + 1; // Adicionar número de registro único
         produtos.push(produto);
         localStorage.setItem('produtos', JSON.stringify(produtos));
     }
@@ -165,6 +166,7 @@
         event.preventDefault();
         // Coleta os dados do formulário e os prepara para serem enviados para o estoque
         let produto = {
+            registro: null, // Registro será atribuído ao enviar para o estoque
             nome: $('#produtoNome').val(),
             tipo: $('#produtoTipo').val(),
             personagem: $('#produtoPersonagem').val(),
