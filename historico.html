@@ -15,7 +15,9 @@
         body {
             background-color: #f8f9fa;
         }
-       
+        .container {
+            margin-top: 50px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -29,15 +31,11 @@
             background-color: #007bff;
             color: #ffffff;
         }
-        @media (max-width: 768px) {
-            table {
-                width: auto; /* Define a largura automática da tabela em dispositivos menores */
-            }
-            .container{
-                margin-top: 10px;
-                margin-right:25%;
-                width: auto;
-            }
+        .selected {
+            background-color: #cce5ff !important;
+        }
+        .btn {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -46,18 +44,23 @@
         <h1>Histórico de Cadastro - Utopia</h1>
     </header>
     <div class="container">
+        <!-- Botões -->
+        <button type="button" class="btn btn-primary" onclick="toggleSelecionarLinhas()">Selecionar/Deselecionar</button>
+        <button type="button" class="btn btn-danger" onclick="apagarSelecionados()">Apagar Selecionados</button>
+
         <!-- Tabela para exibir os produtos em estoque -->
         <table class="table">
             <thead>
                 <tr>
-                    <th>Registro</th>
-                    <th>Nome</th>
-                    <th>Tipo</th>
-                    <th>Personagem</th>
-                    <th>Qtd</th>
-                    <th>Tam</th>
-                    <th>Repartições</th>
-                    <th>Data </th>
+                    <th><input type="checkbox" id="marcarTodos" onchange="marcarTodos(this)"></th>
+                    <th>REGISTRO</th>
+                    <th>NOME</th>
+                    <th>TIPO</th>
+                    <th>PERSONAGEM</th>
+                    <th>QTD</th>
+                    <th>TAM</th>
+                    <th>DIVISÕES</th>
+                    <th>DATA</th>
                 </tr>
             </thead>
             <tbody id="estoqueBody">
@@ -79,6 +82,7 @@
             estoqueBody.empty(); // Limpa o corpo da tabela
             produtos.forEach(function(produto, index) {
                 let newRow = $('<tr>');
+                newRow.append('<td><input type="checkbox" onchange="marcarLinha(this)"></td>'); // Adiciona checkbox para cada linha
                 newRow.append('<td>' + (index + 1) + '</td>'); // Exibir o número de registro
                 newRow.append('<td>' + produto.nome + '</td>');
                 newRow.append('<td>' + produto.tipo + '</td>');
@@ -89,6 +93,60 @@
                 newRow.append('<td>' + produto.horaClique + '</td>');
                 estoqueBody.append(newRow);
             });
+        }
+
+        // Marcar todas as linhas
+        function marcarTodos(checkbox) {
+            let checkboxes = document.querySelectorAll('#estoqueBody input[type="checkbox"]');
+            checkboxes.forEach(function(cb) {
+                cb.checked = checkbox.checked;
+                marcarLinha(cb);
+            });
+        }
+
+        // Marcar linha quando checkbox é alterado
+        function marcarLinha(checkbox) {
+            let row = checkbox.closest('tr');
+            if (checkbox.checked) {
+                row.classList.add('selected');
+            } else {
+                row.classList.remove('selected');
+            }
+        }
+
+        // Selecionar ou desselecionar todas as linhas
+        function toggleSelecionarLinhas() {
+            let checkboxes = document.querySelectorAll('#estoqueBody input[type="checkbox"]');
+            let todosMarcados = true;
+            checkboxes.forEach(function(cb) {
+                if (!cb.checked) {
+                    todosMarcados = false;
+                }
+            });
+            checkboxes.forEach(function(cb) {
+                cb.checked = !todosMarcados;
+                marcarLinha(cb);
+            });
+        }
+
+        // Apagar itens selecionados
+        function apagarSelecionados() {
+            let selecionados = document.querySelectorAll('#estoqueBody input[type="checkbox"]:checked');
+            if (selecionados.length > 0) {
+                if (confirm('Tem certeza que deseja apagar os produtos selecionados?')) {
+                    selecionados.forEach(function(checkbox) {
+                        let row = checkbox.closest('tr');
+                        row.remove();
+                        // Remove também do armazenamento local
+                        let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+                        let index = parseInt(row.querySelector('td:nth-child(2)').textContent) - 1; // Obtém o número de registro da linha
+                        produtos.splice(index, 1); // Remove o produto correspondente ao número de registro
+                        localStorage.setItem('produtos', JSON.stringify(produtos)); // Atualiza o armazenamento local
+                    });
+                }
+            } else {
+                alert('Nenhum produto selecionado.');
+            }
         }
 
         // Carregar o estoque ao carregar a página
