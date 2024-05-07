@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque de Produtos - Utopia</title>
+    <title>Estoque - Utopia</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         header {
@@ -22,12 +22,12 @@
             width: 100%;
             border-collapse: collapse;
         }
-        table th, table td {
-            border: 1px solid #dee2e6;
+        th, td {
             padding: 8px;
             text-align: left;
+            border-bottom: 1px solid #dee2e6;
         }
-        table th {
+        th {
             background-color: #007bff;
             color: #ffffff;
         }
@@ -35,75 +35,62 @@
 </head>
 <body>
     <header>
-        <h1>Estoque de Produtos - Utopia</h1>
+        <h1>Estoque - Utopia</h1>
     </header>
     <div class="container">
-        <table class="table">
+        <!-- Tabela para exibir os produtos em estoque -->
+        <table>
             <thead>
                 <tr>
-                    <th>Nome do Produto</th>
+                    <th>Nome</th>
                     <th>Tipo</th>
-                    <th>Quantidade</th>
-                    <th>Descrição</th>
-                    <th>Código</th>
-                    <th>Tamanho</th>
-                    <th>Valor</th>
                     <th>Personagem</th>
+                    <th>Quantidade</th>
+                    <th>Tamanho</th>
+                    <th>Repartições</th>
+                    <th>Data do Cadastro</th>
                 </tr>
             </thead>
             <tbody id="estoqueBody">
-                <!-- Aqui serão exibidos os produtos cadastrados -->
+                <!-- Dados dos produtos serão inseridos aqui -->
             </tbody>
         </table>
     </div>
 
+    <!-- Importação de scripts JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
-        // Função para carregar o estoque de produtos
+        // Função para carregar os produtos do localStorage e exibir na tabela
         function carregarEstoque() {
             let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
             let estoqueBody = $('#estoqueBody');
-            estoqueBody.empty();
-            let produtosInfantis = {};
+            estoqueBody.empty(); // Limpa o corpo da tabela
+            let estoqueIndex = {}; // Objeto para mapear produtos pelo nome, tipo, tamanho e personagem
             produtos.forEach(function(produto) {
-                // Verifica se o produto é infantil
-                if (produto.nome.includes('Infantil')) {
-                    // Verifica se o produto infantil já existe no objeto
-                    if (produtosInfantis[produto.codigo]) {
-                        produtosInfantis[produto.codigo].quantidade += parseInt(produto.quantidade);
-                    } else {
-                        produtosInfantis[produto.codigo] = { ...produto };
-                    }
+                // Verifica se o produto já está no mapeamento
+                let key = produto.nome + produto.tipo + produto.tamanho + produto.personagem;
+                if (estoqueIndex[key]) {
+                    // Se já existe, soma a quantidade
+                    estoqueIndex[key].quantidade += parseInt(produto.quantidade);
                 } else {
-                    // Adiciona outros produtos diretamente na tabela
-                    estoqueBody.append(`
-                        <tr>
-                            <td>${produto.nome}</td>
-                            <td>${produto.tipo}</td>
-                            <td>${produto.quantidade}</td>
-                            <td>${produto.descricao}</td>
-                            <td>${produto.codigo}</td>
-                            <td>${produto.tamanho}</td>
-                            <td>${produto.valor}</td>
-                            <td>${produto.personagem}</td>
-                        </tr>
-                    `);
+                    // Se não existe, adiciona ao mapeamento
+                    estoqueIndex[key] = produto;
                 }
             });
-            // Adiciona produtos infantis na tabela
-            Object.values(produtosInfantis).forEach(function(produto) {
-                estoqueBody.append(`
-                    <tr>
-                        <td>${produto.nome}</td>
-                        <td>${produto.tipo}</td>
-                        <td>${produto.quantidade}</td>
-                        <td>${produto.descricao}</td>
-                        <td>${produto.codigo}</td>
-                        <td>${produto.tamanho}</td>
-                        <td>${produto.valor}</td>
-                        <td>${produto.personagem}</td>
-                    </tr>
-                `);
+            // Adiciona os produtos únicos à tabela
+            Object.values(estoqueIndex).forEach(function(produto) {
+                let newRow = $('<tr>');
+                newRow.append('<td>' + produto.nome + '</td>');
+                newRow.append('<td>' + produto.tipo + '</td>');
+                newRow.append('<td>' + produto.personagem + '</td>');
+                newRow.append('<td>' + produto.quantidade + '</td>');
+                newRow.append('<td>' + produto.tamanho + '</td>');
+                newRow.append('<td>' + produto.reparticoes + '</td>');
+                newRow.append('<td>' + produto.horaClique + '</td>');
+                estoqueBody.append(newRow);
             });
         }
 
@@ -112,5 +99,6 @@
             carregarEstoque();
         });
     </script>
+
 </body>
 </html>

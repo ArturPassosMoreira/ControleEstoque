@@ -6,7 +6,7 @@
     <title>Realizar Venda</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-      header {
+        header {
             background-color: #343a40;
             color: #ffffff;
             padding: 20px 0;
@@ -15,20 +15,118 @@
     </style>
 </head>
 <body>
-    <header><h1>Utopia</h1></header>
+    <header>
+        <h1>Utopia</h1>
+    </header>
     <div class="container">
         <h1 class="mt-5 mb-4">Realizar Venda</h1>
-
-        <!-- Formulário de Realização de Venda -->
-        <!-- Adicione os campos necessários para a realização de venda -->
+        <form id="formVenda">
+            <div class="form-group">
+                <label for="produto">Nome do Produto:</label>
+                <select class="form-control" id="produto" required>
+                    <!-- Opções de produtos carregadas dinamicamente -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <input type="text" class="form-control" id="tipo" readonly>
+            </div>
+            <div class="form-group">
+                <label for="tamanho">Tamanho:</label>
+                <input type="text" class="form-control" id="tamanho" readonly>
+            </div>
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" class="form-control" id="quantidade" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="personagem">Personagem:</label>
+                <input type="text" class="form-control" id="personagem" readonly>
+            </div>
+            <div class="form-group">
+                <label for="valor">Valor (R$):</label>
+                <input type="text" class="form-control" id="valor" readonly>
+            </div>
+            <div class="form-group">
+                <label for="desconto">Desconto (R$):</label>
+                <input type="number" class="form-control" id="desconto" min="0">
+            </div>
+            <div class="form-group">
+                <label for="total">Total (R$):</label>
+                <input type="text" class="form-control" id="total" readonly>
+            </div>
+            <button type="submit" class="btn btn-primary">Realizar Venda</button>
+        </form>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        // JavaScript para manipular o formulário de realização de venda
-        // Adicione a lógica necessária para enviar os dados da venda para o servidor
+        $(document).ready(function() {
+            // Carregar opções de produtos no select
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let selectProduto = $('#produto');
+            produtos.forEach(function(produto) {
+                selectProduto.append(`<option value="${produto.codigo}" 
+                  data-tipo="${produto.tipo}" 
+                  data-personagem="${produto.personagem}" 
+                  data-quantidade="${produto.quantidade}" 
+                  data-tamanho="${produto.tamanho}" 
+                  data-valor="${produto.valor}" 
+                  data-descricao="${produto.descricao}">${produto.nome}</option>`);
+            });
+
+            // Atualizar campos de informações do produto ao selecionar
+            selectProduto.change(function() {
+                let codigoProduto = $(this).val();
+                let produtoSelecionado = produtos.find(p => p.codigo === codigoProduto);
+                $('#tipo').val(produtoSelecionado.tipo);
+                $('#tamanho').val(produtoSelecionado.tamanho);
+                $('#personagem').val(produtoSelecionado.personagem);
+                $('#valor').val(produtoSelecionado.valor);
+                calcularTotal();
+            });
+
+            // Calcular o total ao alterar a quantidade ou o desconto
+            $('#quantidade, #desconto').change(function() {
+                calcularTotal();
+            });
+
+            // Evento de envio do formulário de venda
+            $('#formVenda').submit(function(event) {
+                event.preventDefault();
+                let codigoProduto = $('#produto').val();
+                let quantidadeVendida = parseInt($('#quantidade').val());
+                let desconto = parseFloat($('#desconto').val()) || 0;
+                let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+
+                // Atualizar quantidade no estoque
+                produtos.forEach(function(produto) {
+                    if (produto.codigo === codigoProduto) {
+                        if (produto.quantidade >= quantidadeVendida) {
+                            produto.quantidade -= quantidadeVendida;
+                            localStorage.setItem('produtos', JSON.stringify(produtos));
+                            alert('Venda realizada com sucesso!');
+                            // Limpar formulário após a venda
+                            $('#quantidade, #desconto').val('');
+                            $('#produto, #tipo, #tamanho, #personagem, #valor, #total').val('');
+                        } else {
+                            alert('Quantidade insuficiente em estoque!');
+                        }
+                    }
+                });
+            });
+
+            // Função para calcular o total da venda
+            function calcularTotal() {
+                let quantidade = parseInt($('#quantidade').val()) || 0;
+                let valor = parseFloat($('#valor').val().replace(',', '.')) || 0;
+                let desconto = parseFloat($('#desconto').val()) || 0;
+                let total = (quantidade * valor) - desconto;
+                $('#total').val(total.toFixed(2));
+            }
+        });
     </script>
 </body>
 </html>
