@@ -50,6 +50,25 @@
             border: none;
             margin-right: auto; /* Empurra o botão para a esquerda */
         }
+        .grupo-nome {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        /* Estilo para números vermelhos */
+        .vermelho {
+            color: red;
+            font-weight: bolder; /* Aplicando negrito */
+        }
+        /* Estilo para números amarelos */
+        .amarelo {
+            color: yellow;
+            font-weight: bolder; /* Aplicando negrito */
+        }
+        /* Estilo para números verdes */
+        .verde {
+            color: green;
+            font-weight: bolder; /* Aplicando negrito */
+        }
     </style>
 </head>
 <body>
@@ -57,7 +76,12 @@
         <!-- Botão da casa -->
         <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
         <!-- Texto centralizado -->
-        <a class="navbar-brand" href="#">Estoque - Utopia</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <a class="navbar-brand" href="#">Estoque - Utopia</a>
+        </div>
     </nav>
    
     <div class="container">
@@ -124,14 +148,12 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>REGISTRO</th>
                     <th>NOME</th>
                     <th>TIPO</th>
                     <th>PERSONAGEM</th>
-                    <th>QTD</th>
                     <th>TAM</th>
                     <th>DIVISÕES</th>
-                    <th>DATA</th>
+                    <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody id="estoqueBody">
@@ -147,45 +169,56 @@
 
     <script>
         // Função para carregar os produtos do localStorage e exibir na tabela
-        function carregarEstoque() {
-            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-            let estoqueBody = $('#estoqueBody');
-            estoqueBody.empty(); // Limpa o corpo da tabela
+function carregarEstoque() {
+    let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+    let estoqueBody = $('#estoqueBody');
+    estoqueBody.empty(); // Limpa o corpo da tabela
 
-            // Objeto para armazenar os produtos agrupados por nome
-            let produtosAgrupados = {};
+    let produtosAgrupados = {};
 
-            produtos.forEach(function(produto, index) {
-                if (!produtosAgrupados[produto.nome]) {
-                    produtosAgrupados[produto.nome] = [];
-                }
-                produtosAgrupados[produto.nome].push(produto);
-            });
-
-            // Exibir os produtos agrupados na tabela
-            for (let nomeProduto in produtosAgrupados) {
-                estoqueBody.append('<tr><td colspan="8" style="background-color: #007bff; color: #fff;">' + nomeProduto + '</td></tr>');
-                produtosAgrupados[nomeProduto].forEach(function(produto, index) {
-                    let newRow = $('<tr>');
-                    newRow.append('<td>' + (index + 1) + '</td>'); // Exibir o número de registro
-                    newRow.append('<td>' + produto.nome + '</td>');
-                    newRow.append('<td>' + produto.tipo + '</td>');
-                    newRow.append('<td>' + produto.personagem + '</td>');
-                    newRow.append('<td>' + produto.quantidade + '</td>');
-                    newRow.append('<td>' + produto.tamanho + '</td>');
-                    newRow.append('<td>' + produto.reparticoes + '</td>');
-                    newRow.append('<td>' + produto.horaClique + '</td>');
-                    estoqueBody.append(newRow);
-                });
-            }
+    produtos.forEach(function(produto) {
+        let chaveProduto = produto.nome + produto.tipo + produto.tamanho + produto.reparticoes + produto.personagem;
+        if (!produtosAgrupados[chaveProduto]) {
+            produtosAgrupados[chaveProduto] = {
+                nome: produto.nome,
+                tipo: produto.tipo,
+                personagem: produto.personagem,
+                tamanho: produto.tamanho,
+                reparticoes: produto.reparticoes,
+                quantidade: produto.quantidade
+            };
+        } else {
+            produtosAgrupados[chaveProduto].quantidade += produto.quantidade;
         }
+    });
+
+    // Exibir os produtos na tabela
+    Object.values(produtosAgrupados).forEach(function(produto) {
+        let newRow = $('<tr>');
+        newRow.append('<td>' + produto.nome + '</td>');
+        newRow.append('<td>' + produto.tipo + '</td>');
+        newRow.append('<td>' + produto.personagem + '</td>');
+        newRow.append('<td>' + produto.tamanho + '</td>');
+        newRow.append('<td>' + produto.reparticoes + '</td>');
+        let totalCell = $('<td>').text(produto.quantidade); // Coluna para exibir a quantidade
+        if (produto.quantidade <= 20) {
+            totalCell.addClass('vermelho');
+        } else if (produto.quantidade <= 50) {
+            totalCell.addClass('amarelo');
+        } else {
+            totalCell.addClass('verde');
+        }
+        newRow.append(totalCell);
+        estoqueBody.append(newRow);
+    });
+}
 
         // Função para filtrar os produtos por nome
         function filtrarPorNome() {
             let filtroNome = $('#produtoNome').val().toLowerCase();
             let linhas = $('#estoqueBody').find('tr');
             linhas.each(function() {
-                let nomeProduto = $(this).find('td:nth-child(2)').text().toLowerCase();
+                let nomeProduto = $(this).find('td:nth-child(1)').text().toLowerCase();
                 if (nomeProduto.includes(filtroNome) || filtroNome === '') {
                     $(this).show();
                 } else {
@@ -199,7 +232,7 @@
             let filtroTipo = $('#produtoTipo').val().toLowerCase();
             let linhas = $('#estoqueBody').find('tr');
             linhas.each(function() {
-                let tipoProduto = $(this).find('td:nth-child(3)').text().toLowerCase();
+                let tipoProduto = $(this).find('td:nth-child(2)').text().toLowerCase();
                 if (tipoProduto.includes(filtroTipo) || filtroTipo === '') {
                     $(this).show();
                 } else {
@@ -213,7 +246,7 @@
             let filtroPersonagem = $('#produtoPersonagem').val().toLowerCase();
             let linhas = $('#estoqueBody').find('tr');
             linhas.each(function() {
-                let personagemProduto = $(this).find('td:nth-child(4)').text().toLowerCase();
+                let personagemProduto = $(this).find('td:nth-child(3)').text().toLowerCase();
                 if (personagemProduto.includes(filtroPersonagem) || filtroPersonagem === '') {
                     $(this).show();
                 } else {
@@ -227,7 +260,7 @@
             let filtroTamanho = $('#tamanho').val().toLowerCase();
             let linhas = $('#estoqueBody').find('tr');
             linhas.each(function() {
-                let tamanhoProduto = $(this).find('td:nth-child(6)').text().toLowerCase();
+                let tamanhoProduto = $(this).find('td:nth-child(4)').text().toLowerCase();
                 if (tamanhoProduto.includes(filtroTamanho) || filtroTamanho === '') {
                     $(this).show();
                 } else {
@@ -241,7 +274,7 @@
             let filtroReparticoes = $('#reparticoes').val().toLowerCase();
             let linhas = $('#estoqueBody').find('tr');
             linhas.each(function() {
-                let reparticoesProduto = $(this).find('td:nth-child(7)').text().toLowerCase();
+                let reparticoesProduto = $(this).find('td:nth-child(5)').text().toLowerCase();
                 if (reparticoesProduto.includes(filtroReparticoes) || filtroReparticoes === '') {
                     $(this).show();
                 } else {
@@ -250,25 +283,36 @@
             });
         }
 
-        // Função para carregar os personagens armazenados no localStorage
-        function carregarPersonagens() {
-            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
-            let selectPersonagem = $('#produtoPersonagem');
-            
-            // Limpar as opções existentes antes de adicionar os novos personagens
-            selectPersonagem.empty();
-            
-            // Adicionar as opções de personagens ao seletor
-            personagens.forEach(function(personagem) {
-                selectPersonagem.append('<option value="' + personagem + '">' + personagem + '</option>');
-            });
-        }
-
-        // Chamar a função para carregar o estoque e os personagens ao carregar a página
+        // Chamar a função para carregar o estoque ao carregar a página
         $(document).ready(function() {
             carregarEstoque();
-            carregarPersonagens();
         });
+        // Função para preencher o seletor de filtro de personagens com todos os personagens cadastrados
+function preencherSeletorPersonagem() {
+    let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+    let personagens = new Set(); // Usando um Set para garantir valores únicos
+
+    // Iterar sobre todos os produtos para obter todos os personagens
+    produtos.forEach(function(produto) {
+        personagens.add(produto.personagem);
+    });
+
+    // Limpar as opções existentes no seletor
+    $('#produtoPersonagem').empty();
+
+    // Adicionar a opção padrão
+    $('#produtoPersonagem').append('<option value="">Selecione o personagem</option>');
+
+    // Adicionar cada personagem como uma opção no seletor
+    personagens.forEach(function(personagem) {
+        $('#produtoPersonagem').append('<option value="' + personagem + '">' + personagem + '</option>');
+    });
+}
+
+// Chamar a função para preencher o seletor de filtro de personagens ao carregar a página
+$(document).ready(function() {
+    preencherSeletorPersonagem();
+});
     </script>
 </body>
 </html>
