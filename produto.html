@@ -7,6 +7,8 @@
     <title>Cadastro de Produto - Utopia</title>
     <!-- Importação do Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Adicione o link para a biblioteca Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* Estilos personalizados */
         header {
@@ -48,12 +50,23 @@
         #novoPersonagemInput {
             margin-top: 10px;
         }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            margin-left: 15px;
+        }
+        h1{
+            margin: auto;
+        }
     </style>
 </head>
 <body>
     <!-- Cabeçalho da página -->
-    <header>
-        <h1>Utopia</h1>
+    <header class="d-flex justify-content-between align-items-center">
+        <!-- Botão de ir para index.html com ícone de casa -->
+        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
+        <h1>Cadastro Produto</h1>
     </header>
     <div class="container">
         <!-- Formulário de cadastro de produto -->

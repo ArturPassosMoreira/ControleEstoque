@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamento de Clientes - Utopia</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Adicione o link para a biblioteca Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         header {
             background-color: #343a40;
@@ -22,6 +24,7 @@
         }
         h1, h2 {
             text-align: center;
+            margin: auto;
         }
         .list-group-item {
             cursor: pointer;
@@ -62,11 +65,18 @@
         .btn-danger:hover {
             background-color: #c82333;
         }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Gerenciamento de Clientes - Utopia</h1>
+    <header class="d-flex justify-content-between align-items-center">
+        <!-- Botão de ir para index.html com ícone de casa -->
+        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
+        <h1>Gerenciamento de Clientes  </h1>
     </header>
     <div class="container">
         <h2>Lista de Clientes</h2>

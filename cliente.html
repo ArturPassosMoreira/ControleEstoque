@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Cliente - Utopia</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Adicione o link para a biblioteca Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        
         header {
             background-color: #343a40;
             color: #ffffff;
@@ -38,12 +41,24 @@
         .btn-primary:hover {
             background-color: #0056b3;
         }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .btn-home:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Utopia</h1>
     </header>
+    <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
     <div class="container">
         <form id="formCliente">
             <h2>Cadastro de Cliente</h2>
@@ -111,6 +126,8 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script>
         // Função para enviar os dados do cliente para o localStorage
         function cadastrarCliente(cliente) {
