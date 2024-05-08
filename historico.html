@@ -18,7 +18,8 @@
             max-width: 800px;
         }
         table {
-            width: 100%;
+            max-width: 100%; /* Define a largura máxima para 100% da largura do dispositivo */
+    overflow-x: auto; /* Adiciona rolagem horizontal caso necessário */
             border-collapse: collapse;
         }
         th, td {
@@ -34,16 +35,16 @@
         .btn-group {
             margin-bottom: 20px;
         }
-        
-            header {
+                
+                header {
             background-color: #343a40;
-            padding: 15px 0;
+            padding: 15px 30px 15px 0px;
             color: #ffffff;
             display: flex;
-            
+            justify-content: center; /* Centraliza horizontalmente */
             align-items: center;
-            width: 150vh;
-                }
+            width: 100%;
+        }
 
         .header-title {
          margin: 0;
@@ -56,13 +57,12 @@
             color: #ffffff;
             border: none;
             margin-left: 15px;
+            
         }
         
-        h1{
-          margin: auto; 
-          text-align: center;
-           
-        }
+        h1 {
+        margin: 0;
+        text-align: left;}
     </style>
 </head>
 <body>
