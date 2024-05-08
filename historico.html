@@ -75,13 +75,12 @@
             <thead>
                 <tr>
                     <th><input type="checkbox" id="marcarTodos" onchange="marcarTodos(this)"></th>
-                    <th>REGISTRO</th>
                     <th>NOME</th>
                     <th>TIPO</th>
                     <th>PERSONAGEM</th>
                     <th>QTD</th>
                     <th>TAM</th>
-                    <th>DIVISÕES</th>
+                    <th>DIV</th>
                     <th>DATA</th>
                 </tr>
             </thead>
@@ -105,7 +104,6 @@
             produtos.forEach(function(produto, index) {
                 let newRow = $('<tr>');
                 newRow.append('<td><input type="checkbox" onchange="marcarLinha(this)"></td>'); // Adiciona checkbox para cada linha
-                newRow.append('<td>' + (index + 1) + '</td>'); // Exibir o número de registro
                 newRow.append('<td>' + produto.nome + '</td>');
                 newRow.append('<td>' + produto.tipo + '</td>');
                 newRow.append('<td>' + produto.personagem + '</td>');
