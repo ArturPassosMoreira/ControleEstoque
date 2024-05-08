@@ -15,12 +15,6 @@
         }
         .container {
             margin-top: 70px;
-            max-width: 800px;
-        }
-        table {
-            max-width: 100%; /* Define a largura máxima para 100% da largura do dispositivo */
-             overflow-x: auto; /* Adiciona rolagem horizontal caso necessário */
-            border-collapse: collapse;
         }
         th, td {
             padding: 10px;
@@ -35,41 +29,21 @@
         .btn-group {
             margin-bottom: 20px;
         }
-                
-                header {
+        header {
             background-color: #343a40;
-            padding: 15px 30px 15px 0px;
+            padding: 15px 0;
             color: #ffffff;
-            display: flex;
-            justify-content: center; /* Centraliza horizontalmente */
-            align-items: center;
-            max-width: 100%;
         }
-
-        .header-title {
-         margin: 0;
-         
-         }
-
-
-        .btn-home {
-            background-color: #007bff;
-            color: #ffffff;
-            border: none;
-            margin-left: 15px;
-            
-        }
-        
         h1 {
-        margin: 0;
-        text-align: left;}
+            margin: 0;
+        }
     </style>
 </head>
 <body>
-    <header class="d-flex justify-content-between align-items-center">
+    <header class="container-fluid d-flex justify-content-between align-items-center">
         <!-- Botão de ir para index.html com ícone de casa -->
-        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a><h1>Histórico de Cadastro </h1>
-        
+        <a href="index.html" class="btn btn-primary"><i class="fas fa-home"></i></a>
+        <h1 class="text-center">Histórico de Cadastro</h1>
     </header>
     <div class="container">
         <div class="btn-group">
@@ -77,24 +51,26 @@
             <button type="button" class="btn btn-danger" onclick="apagarSelecionados()">Apagar Selecionados</button>
         </div>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><input type="checkbox" id="marcarTodos" onchange="marcarTodos(this)"></th>
-                    <th>REGISTRO</th>
-                    <th>NOME</th>
-                    <th>TIPO</th>
-                    <th>PERSONAGEM</th>
-                    <th>QTD</th>
-                    <th>TAM</th>
-                    <th>DIV</th>
-                    <th>DATA</th>
-                </tr>
-            </thead>
-            <tbody id="estoqueBody">
-                <!-- Dados dos produtos serão inseridos aqui -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="marcarTodos" onchange="marcarTodos(this)"></th>
+                        <th>REGISTRO</th>
+                        <th>NOME</th>
+                        <th>TIPO</th>
+                        <th>PERSONAGEM</th>
+                        <th>QTD</th>
+                        <th>TAM</th>
+                        <th>DIV</th>
+                        <th>DATA</th>
+                    </tr>
+                </thead>
+                <tbody id="estoqueBody">
+                    <!-- Dados dos produtos serão inseridos aqui -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Importação de scripts JavaScript -->
