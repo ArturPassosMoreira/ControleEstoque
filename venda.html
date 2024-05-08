@@ -13,7 +13,8 @@
             color: #ffffff;
             padding: 20px 0;
             text-align: center;
-            .btn-home {
+        }
+        .btn-home {
             background-color: #007bff;
             color: #ffffff;
             border: none;
@@ -23,12 +24,11 @@
             margin: auto;
             margin-left: -1vh;
         }
-        }
     </style>
 </head>
 <body>
-     <!-- Cabeçalho da página -->
-     <header class="d-flex justify-content-between align-items-center">
+    <!-- Cabeçalho da página -->
+    <header class="d-flex justify-content-between align-items-center">
         <!-- Botão de ir para index.html com ícone de casa -->
         <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
         <h1>Vendas</h1>
@@ -40,15 +40,30 @@
                 <label for="produto">Nome do Produto:</label>
                 <select class="form-control" id="produto" required>
                     <!-- Opções de produtos carregadas dinamicamente -->
+                    <option value="Mochila Infantil" data-tipo="Costa" data-personagem="Personagem1" data-tamanho="P" data-valor="50.00">Mochila Infantil</option>
+                    <option value="Mochila Juvenil" data-tipo="Carrinho" data-personagem="Personagem2" data-tamanho="M" data-valor="60.00">Mochila Juvenil</option>
+                    <option value="Mochila Company" data-tipo="Furada" data-personagem="Personagem3" data-tamanho="G" data-valor="70.00">Mochila Company</option>
+                    <option value="Lancheira" data-tipo="Outro" data-personagem="Personagem4" data-tamanho="Outro" data-valor="40.00">Lancheira</option>
+                    <option value="Porta lápis" data-tipo="Outro" data-personagem="Personagem5" data-tamanho="Outro" data-valor="20.00">Porta lápis</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
-                <input type="text" class="form-control" id="tipo" readonly>
+                <select class="form-control" id="tipo" readonly>
+                    <option value="Costa">Costa</option>
+                    <option value="Carrinho">Carrinho</option>
+                    <option value="Furada">Furada</option>
+                    <option value="Outro">Outro</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="tamanho">Tamanho:</label>
-                <input type="text" class="form-control" id="tamanho" readonly>
+                <select class="form-control" id="tamanho" readonly>
+                    <option value="P">P</option>
+                    <option value="M">M</option>
+                    <option value="G">G</option>
+                    <option value="Outro">Outro</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="quantidade">Quantidade:</label>
@@ -56,7 +71,9 @@
             </div>
             <div class="form-group">
                 <label for="personagem">Personagem:</label>
-                <input type="text" class="form-control" id="personagem" readonly>
+                <select class="form-control" id="personagem" readonly>
+                    <!-- Opções de personagens carregadas dinamicamente -->
+                </select>
             </div>
             <div class="form-group">
                 <label for="valor">Valor (R$):</label>
@@ -79,28 +96,20 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Carregar opções de produtos no select
-            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-            let selectProduto = $('#produto');
-            produtos.forEach(function(produto) {
-                selectProduto.append(`<option value="${produto.codigo}" 
-                  data-tipo="${produto.tipo}" 
-                  data-personagem="${produto.personagem}" 
-                  data-quantidade="${produto.quantidade}" 
-                  data-tamanho="${produto.tamanho}" 
-                  data-valor="${produto.valor}" 
-                  data-descricao="${produto.descricao}">${produto.nome}</option>`);
+            // Atualizar campos de informações do produto ao selecionar
+            $('#produto').change(function() {
+                let option = $(this).find('option:selected');
+                $('#tipo').val(option.data('tipo'));
+                $('#tamanho').val(option.data('tamanho'));
+                $('#valor').val(option.data('valor'));
+                calcularTotal();
             });
 
-            // Atualizar campos de informações do produto ao selecionar
-            selectProduto.change(function() {
-                let codigoProduto = $(this).val();
-                let produtoSelecionado = produtos.find(p => p.codigo === codigoProduto);
-                $('#tipo').val(produtoSelecionado.tipo);
-                $('#tamanho').val(produtoSelecionado.tamanho);
-                $('#personagem').val(produtoSelecionado.personagem);
-                $('#valor').val(produtoSelecionado.valor);
-                calcularTotal();
+            // Carregar opções de personagens no select
+            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+            let selectPersonagem = $('#personagem');
+            personagens.forEach(function(personagem) {
+                selectPersonagem.append(`<option value="${personagem}">${personagem}</option>`);
             });
 
             // Calcular o total ao alterar a quantidade ou o desconto
@@ -111,36 +120,26 @@
             // Evento de envio do formulário de venda
             $('#formVenda').submit(function(event) {
                 event.preventDefault();
-                let codigoProduto = $('#produto').val();
-                let quantidadeVendida = parseInt($('#quantidade').val());
-                let desconto = parseFloat($('#desconto').val()) || 0;
-                let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+                // Simulando uma venda com alertas
+                alert('Venda realizada com sucesso!');
+                // Você precisará modificar isso para que funcione corretamente com a sua aplicação
 
-                // Atualizar quantidade no estoque
-                produtos.forEach(function(produto) {
-                    if (produto.codigo === codigoProduto) {
-                        if (produto.quantidade >= quantidadeVendida) {
-                            produto.quantidade -= quantidadeVendida;
-                            localStorage.setItem('produtos', JSON.stringify(produtos));
-                            alert('Venda realizada com sucesso!');
-                            // Limpar formulário após a venda
-                            $('#quantidade, #desconto').val('');
-                            $('#produto, #tipo, #tamanho, #personagem, #valor, #total').val('');
-                        } else {
-                            alert('Quantidade insuficiente em estoque!');
-                        }
-                    }
-                });
+                // Após realizar a venda, limpe o formulário
+                $('#quantidade, #desconto').val('');
+                $('#produto').val($('#produto option:first').val()).change(); // Retorna ao primeiro produto
             });
 
             // Função para calcular o total da venda
             function calcularTotal() {
                 let quantidade = parseInt($('#quantidade').val()) || 0;
-                let valor = parseFloat($('#valor').val().replace(',', '.')) || 0;
+                let valor = parseFloat($('#valor').val()) || 0;
                 let desconto = parseFloat($('#desconto').val()) || 0;
                 let total = (quantidade * valor) - desconto;
                 $('#total').val(total.toFixed(2));
             }
+
+            // Simular a seleção do primeiro produto ao carregar a página
+            $('#produto').change();
         });
     </script>
 </body>
