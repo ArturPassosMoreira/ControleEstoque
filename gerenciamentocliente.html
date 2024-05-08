@@ -15,20 +15,52 @@
         }
         body {
             background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
         }
         .container {
             margin-top: 50px;
         }
         h1, h2 {
-            color: #007bff;
             text-align: center;
         }
         .list-group-item {
             cursor: pointer;
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .list-group-item:last-child {
+            border-bottom: none;
         }
         .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+        .modal-header {
+            border-bottom: none;
+        }
+        .modal-title {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
             background-color: #007bff;
-            color: #ffffff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -77,32 +109,6 @@
                             <label for="estadoEdit">Estado</label>
                             <select class="form-control" id="estadoEdit">
                                 <option value="AC">Acre</option>
-                                <option value="AL">Alagoas</option>
-                                <option value="AP">Amapá</option>
-                                <option value="AM">Amazonas</option>
-                                <option value="BA">Bahia</option>
-                                <option value="CE">Ceará</option>
-                                <option value="DF">Distrito Federal</option>
-                                <option value="ES">Espírito Santo</option>
-                                <option value="GO">Goiás</option>
-                                <option value="MA">Maranhão</option>
-                                <option value="MT">Mato Grosso</option>
-                                <option value="MS">Mato Grosso do Sul</option>
-                                <option value="MG">Minas Gerais</option>
-                                <option value="PA">Pará</option>
-                                <option value="PB">Paraíba</option>
-                                <option value="PR">Paraná</option>
-                                <option value="PE">Pernambuco</option>
-                                <option value="PI">Piauí</option>
-                                <option value="RJ">Rio de Janeiro</option>
-                                <option value="RN">Rio Grande do Norte</option>
-                                <option value="RS">Rio Grande do Sul</option>
-                                <option value="RO">Rondônia</option>
-                                <option value="RR">Roraima</option>
-                                <option value="SC">Santa Catarina</option>
-                                <option value="SP">São Paulo</option>
-                                <option value="SE">Sergipe</option>
-                                <option value="TO">Tocantins</option>
                                 <!-- Opções para todos os estados do Brasil -->
                             </select>
                         </div>
@@ -131,7 +137,7 @@
             let listaClientes = $('#listaClientes');
             listaClientes.empty();
             clientes.forEach(function(cliente, index) {
-                listaClientes.append(`<li class="list-group-item" id="cliente-${index}">${cliente.nome} <button class="btn btn-primary btn-sm editar" data-index="${index}">Editar</button></li>`);
+                listaClientes.append(`<li class="list-group-item" id="cliente-${index}">${cliente.nome} <button class="btn btn-primary btn-sm editar" data-index="${index}">Editar</button> <button class="btn btn-danger btn-sm excluir" data-index="${index}">Excluir</button></li>`);
             });
 
             // Adicionar evento de clique em cada cliente para exibir detalhes
@@ -139,6 +145,23 @@
                 let index = $(this).data('index');
                 editarCliente(clientes[index], index);
             });
+
+            // Adicionar evento de clique em cada botão de excluir cliente
+            listaClientes.on('click', '.excluir', function() {
+                let index = $(this).data('index');
+                if (confirm("Tem certeza de que deseja excluir este cliente?")) {
+                    excluirCliente(index);
+                }
+            });
+        }
+
+        // Função para excluir um cliente
+        function excluirCliente(index) {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            clientes.splice(index, 1); // Remove o cliente do array
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+            carregarClientes(); // Atualiza a lista de clientes
+            alert('Cliente excluído com sucesso!');
         }
 
         // Função para exibir os detalhes de um cliente selecionado

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            color: #343a40;
+        }
+        .container {
+            margin-top: 70px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Estoque - Utopia</a>
+    </nav>
+
+    <div class="container">
+        <!-- Seletor para filtrar por nome -->
+        <div class="form-group">
+            <label for="produtoNome">Filtrar por Nome:</label>
+            <select class="form-control" id="produtoNome" onchange="filtrarPorNome()">
+                <option value="">Selecione o produto</option>
+                <option value="Mochila Infantil">Mochila Infantil</option>
+                <option value="Mochila Juvenil">Mochila Juvenil</option>
+                <option value="Mochila Company">Mochila Company</option>
+                <option value="Lancheira">Lancheira</option>
+                <option value="Porta lápis">Porta lápis</option>
+            </select>
+        </div>
+
+        <!-- Seletor para filtrar por tipo -->
+        <div class="form-group">
+            <label for="produtoTipo">Filtrar por Tipo:</label>
+            <select class="form-control" id="produtoTipo" onchange="filtrarPorTipo()">
+                <option value="">Selecione o tipo</option>
+                <option value="Costa">Costa</option>
+                <option value="Carrinho">Carrinho</option>
+                <option value="Furada">Furada</option>
+                <option value="Outro">Outro</option>
+            </select>
+        </div>
+
+        <!-- Seletor para filtrar por personagem -->
+        <div class="form-group">
+            <label for="produtoPersonagem">Filtrar por Personagem:</label>
+            <select class="form-control" id="produtoPersonagem" onchange="filtrarPorPersonagem()">
+                <option value="">Selecione o personagem</option>
+            </select>
+        </div>
+
+        <!-- Seletor para filtrar por tamanho -->
+        <div class="form-group">
+            <label for="tamanho">Filtrar por Tamanho:</label>
+            <select class="form-control" id="tamanho" onchange="filtrarPorTamanho()">
+                <option value="">Selecione o tamanho</option>
+                <option value="P">P</option>
+                <option value="M">M</option>
+                <option value="G">G</option>
+                <option value="Outro">Outro</option>
+            </select>
+        </div>
+
+        <!-- Seletor para filtrar por repartições -->
+        <div class="form-group">
+            <label for="reparticoes">Filtrar por Repartições:</label>
+            <select class="form-control" id="reparticoes" onchange="filtrarPorReparticoes()">
+                <option value="">Selecione as repartições</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="Outro">Outro</option>
+            </select>
+        </div>
+
+        <!-- Tabela para exibir os produtos em estoque -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>REGISTRO</th>
+                    <th>NOME</th>
+                    <th>TIPO</th>
+                    <th>PERSONAGEM</th>
+                    <th>QTD</th>
+                    <th>TAM</th>
+                    <th>DIVISÕES</th>
+                    <th>DATA</th>
+                </tr>
+            </thead>
+            <tbody id="estoqueBody">
+                <!-- Dados dos produtos serão inseridos aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Importação de scripts JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Função para carregar os produtos do localStorage e exibir na tabela
+        function carregarEstoque() {
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let estoqueBody = $('#estoqueBody');
+            estoqueBody.empty(); // Limpa o corpo da tabela
+
+            // Objeto para armazenar os produtos agrupados por nome
+            let produtosAgrupados = {};
+
+            produtos.forEach(function(produto, index) {
+                if (!produtosAgrupados[produto.nome]) {
+                    produtosAgrupados[produto.nome] = [];
+                }
+                produtosAgrupados[produto.nome].push(produto);
+            });
+
+            // Exibir os produtos agrupados na tabela
+            for (let nomeProduto in produtosAgrupados) {
+                estoqueBody.append('<tr><td colspan="8" style="background-color: #007bff; color: #fff;">' + nomeProduto + '</td></tr>');
+                produtosAgrupados[nomeProduto].forEach(function(produto, index) {
+                    let newRow = $('<tr>');
+                    newRow.append('<td>' + (index + 1) + '</td>'); // Exibir o número de registro
+                    newRow.append('<td>' + produto.nome + '</td>');
+                    newRow.append('<td>' + produto.tipo + '</td>');
+                    newRow.append('<td>' + produto.personagem + '</td>');
+                    newRow.append('<td>' + produto.quantidade + '</td>');
+                    newRow.append('<td>' + produto.tamanho + '</td>');
+                    newRow.append('<td>' + produto.reparticoes + '</td>');
+                    newRow.append('<td>' + produto.horaClique + '</td>');
+                    estoqueBody.append(newRow);
+                });
+            }
+        }
+
+        // Função para filtrar os produtos por nome
+        function filtrarPorNome() {
+            let filtroNome = $('#produtoNome').val().toLowerCase();
+            let linhas = $('#estoqueBody').find('tr');
+            linhas.each(function() {
+                let nomeProduto = $(this).find('td:nth-child(2)').text().toLowerCase();
+                if (nomeProduto.includes(filtroNome) || filtroNome === '') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Função para filtrar os produtos por tipo
+        function filtrarPorTipo() {
+            let filtroTipo = $('#produtoTipo').val().toLowerCase();
+            let linhas = $('#estoqueBody').find('tr');
+            linhas.each(function() {
+                let tipoProduto = $(this).find('td:nth-child(3)').text().toLowerCase();
+                if (tipoProduto.includes(filtroTipo) || filtroTipo === '') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Função para filtrar os produtos por personagem
+        function filtrarPorPersonagem() {
+            let filtroPersonagem = $('#produtoPersonagem').val().toLowerCase();
+            let linhas = $('#estoqueBody').find('tr');
+            linhas.each(function() {
+                let personagemProduto = $(this).find('td:nth-child(4)').text().toLowerCase();
+                if (personagemProduto.includes(filtroPersonagem) || filtroPersonagem === '') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Função para filtrar os produtos por tamanho
+        function filtrarPorTamanho() {
+            let filtroTamanho = $('#tamanho').val().toLowerCase();
+            let linhas = $('#estoqueBody').find('tr');
+            linhas.each(function() {
+                let tamanhoProduto = $(this).find('td:nth-child(6)').text().toLowerCase();
+                if (tamanhoProduto.includes(filtroTamanho) || filtroTamanho === '') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Função para filtrar os produtos por repartições
+        function filtrarPorReparticoes() {
+            let filtroReparticoes = $('#reparticoes').val().toLowerCase();
+            let linhas = $('#estoqueBody').find('tr');
+            linhas.each(function() {
+                let reparticoesProduto = $(this).find('td:nth-child(7)').text().toLowerCase();
+                if (reparticoesProduto.includes(filtroReparticoes) || filtroReparticoes === '') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Função para carregar os personagens armazenados no localStorage
+        function carregarPersonagens() {
+            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+            let selectPersonagem = $('#produtoPersonagem');
+            
+            // Limpar as opções existentes antes de adicionar os novos personagens
+            selectPersonagem.empty();
+            
+            // Adicionar as opções de personagens ao seletor
+            personagens.forEach(function(personagem) {
+                selectPersonagem.append('<option value="' + personagem + '">' + personagem + '</option>');
+            });
+        }
+
+        // Chamar a função para carregar o estoque e os personagens ao carregar a página
+        $(document).ready(function() {
+            carregarEstoque();
+            carregarPersonagens();
+        });
+    </script>
+</body>
+</html>

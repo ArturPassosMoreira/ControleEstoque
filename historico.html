@@ -8,28 +8,36 @@
     <style>
         body {
             background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            color: #343a40;
         }
         .container {
-            margin-top: 100px; /* Aumentei o margin-top para evitar que a navbar cubra a tabela */
+            margin-top: 70px;
+            max-width: 800px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         th, td {
-            padding: 8px;
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
         }
         th {
             background-color: #007bff;
             color: #ffffff;
+            font-weight: bold;
+        }
+        .btn-group {
+            margin-bottom: 20px;
+        }
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
         }
         .selected {
             background-color: #cce5ff !important;
-        }
-        .btn {
-            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -39,11 +47,11 @@
     </nav>
 
     <div class="container">
-        <!-- Botões -->
-        <button type="button" class="btn btn-primary" onclick="toggleSelecionarLinhas()">Selecionar/Deselecionar</button>
-        <button type="button" class="btn btn-danger" onclick="apagarSelecionados()">Apagar Selecionados</button>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" onclick="toggleSelecionarLinhas()">Selecionar/Deselecionar</button>
+            <button type="button" class="btn btn-danger" onclick="apagarSelecionados()">Apagar Selecionados</button>
+        </div>
 
-        <!-- Tabela para exibir os produtos em estoque -->
         <table class="table">
             <thead>
                 <tr>
