@@ -12,20 +12,19 @@
             background-color: #f8f9fa;
             font-family: Arial, sans-serif;
             color: #343a40;
-            font-size: 14px; /* Diminuir o tamanho da fonte */
         }
         .container {
             margin-top: 70px;
-            padding-left: 15px;
-            padding-right: 15px;
+            max-width: 800px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
         th, td {
-            padding: 10px; /* Espaçamento interno das células */
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
-            white-space: normal; /* Permitir que o texto quebre */
-            word-break: break-word; /* Quebrar palavras longas */
-            font-size: 12px; /* Diminuir o tamanho da fonte */
         }
         th {
             background-color: #007bff;
@@ -38,29 +37,33 @@
         header {
             background-color: #343a40;
             padding: 15px 0;
+            text-align: center;
             color: #ffffff;
-            margin-left: -15px;
-            margin-right: -15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        h1 {
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            margin-left: 15px;
+        }
+        .header-title {
             margin: 0;
+            flex-grow: 1;
         }
-        .table-header {
-            display: table;
-            width: 100%;
-        }
-        /* Ajuste de largura para evitar rolagem lateral */
-        .table-fit {
-            table-layout: fixed;
-            width: 100%;
+        h1{
+            
+            margin: auto;
         }
     </style>
 </head>
 <body>
-    <header class="container-fluid d-flex justify-content-between align-items-center">
+    <header class="d-flex justify-content-between align-items-center">
         <!-- Botão de ir para index.html com ícone de casa -->
-        <a href="index.html" class="btn btn-primary"><i class="fas fa-home"></i></a>
-        <h1 class="text-center">Histórico de Cadastro</h1>
+        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
+        <h1>Histórico de Cadastro </h1>
     </header>
     <div class="container">
         <div class="btn-group">
@@ -68,32 +71,24 @@
             <button type="button" class="btn btn-danger" onclick="apagarSelecionados()">Apagar Selecionados</button>
         </div>
 
-        <!-- Adicione a classe "table-responsive" à div que envolve a tabela -->
-        <div class="table-responsive">
-            <!-- Adicione a classe "table-header" ao cabeçalho da tabela -->
-            <div class="table-header">
-                <table class="table table-fit">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="marcarTodos" onchange="marcarTodos(this)"></th>
-                            <th>REGISTRO</th>
-                            <th>NOME</th>
-                            <th>TIPO</th>
-                            <th>PERSONAGEM</th>
-                            <th>QTD</th>
-                            <th>TAM</th>
-                            <th>DIV</th>
-                            <th>DATA</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <table class="table table-fit">
-                <tbody id="estoqueBody">
-                    <!-- Dados dos produtos serão inseridos aqui -->
-                </tbody>
-            </table>
-        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="marcarTodos" onchange="marcarTodos(this)"></th>
+                    <th>REGISTRO</th>
+                    <th>NOME</th>
+                    <th>TIPO</th>
+                    <th>PERSONAGEM</th>
+                    <th>QTD</th>
+                    <th>TAM</th>
+                    <th>DIVISÕES</th>
+                    <th>DATA</th>
+                </tr>
+            </thead>
+            <tbody id="estoqueBody">
+                <!-- Dados dos produtos serão inseridos aqui -->
+            </tbody>
+        </table>
     </div>
 
     <!-- Importação de scripts JavaScript -->
