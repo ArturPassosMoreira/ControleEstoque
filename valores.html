@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Configuração básica da página -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro e Edição de Valores - Utopia</title>
+    <!-- Importação do Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Adicione o link para a biblioteca Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Estilos personalizados */
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        form, table {
+            width: 100%;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success, .btn-danger {
+            color: #fff;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho da página -->
+    <header>
+        <h1>Cadastro e Edição de Valores</h1>
+    </header>
+    <div class="container">
+        <!-- Formulário de cadastro de valores -->
+        <form id="formValores">
+            <h2 class="mb-4">Cadastro de Valores</h2>
+            <!-- Campo: Nome do Produto -->
+            <div class="form-group">
+                <label for="produtoNome">Nome do Produto</label>
+                <!-- Dropdown para selecionar o nome do produto -->
+                <select class="form-control" id="produtoNome" required>
+                    <option value="">Selecione o produto</option>
+                    <option value="Mochila Infantil">Mochila Infantil</option>
+                    <option value="Mochila Juvenil">Mochila Juvenil</option>
+                    <option value="Mochila Company">Mochila Company</option>
+                    <option value="Lancheira">Lancheira</option>
+                    <option value="Porta lápis">Porta lápis</option>
+                </select>
+            </div>
+            <!-- Campo: Tipo do Produto -->
+            <div class="form-group">
+                <label for="produtoTipo">Tipo do Produto</label>
+                <!-- Dropdown para selecionar o tipo do produto -->
+                <select class="form-control" id="produtoTipo" required>
+                    <option value="">Selecione o tipo</option>
+                    <option value="Costa">Costa</option>
+                    <option value="Carrinho">Carrinho</option>
+                    <option value="Furada">Furada</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <!-- Campo: Tamanho -->
+            <div class="form-group">
+                <label for="tamanho">Tamanho</label>
+                <!-- Dropdown para selecionar o tamanho -->
+                <select class="form-control" id="tamanho" required>
+                    <option value="">Selecione o tamanho</option>
+                    <option value="P">P</option>
+                    <option value="M">M</option>
+                    <option value="G">G</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <!-- Campo: Divisória -->
+            <div class="form-group">
+                <label for="divisoria">Divisória</label>
+                <!-- Dropdown para selecionar a divisória -->
+                <select class="form-control" id="divisoria" required>
+                    <option value="">Selecione a divisória</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <!-- Campo: Valor -->
+            <div class="form-group">
+                <label for="valor">Valor (em R$)</label>
+                <input type="number" class="form-control" id="valor" required>
+            </div>
+            <!-- Botão de submit -->
+            <button type="submit" class="btn btn-primary">Adicionar Valor</button>
+        </form>
+
+        <!-- Tabela de valores cadastrados -->
+        <h2 class="mt-5">Valores Cadastrados</h2>
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th>Nome do Produto</th>
+                    <th>Tipo</th>
+                    <th>Tamanho</th>
+                    <th>Divisória</th>
+                    <th>Valor (R$)</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="valoresTableBody">
+                <!-- Aqui serão inseridos os valores dinamicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Importação de scripts JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+    // Função para preencher a tabela com os valores cadastrados
+    function preencherTabela(valores) {
+        $('#valoresTableBody').empty();
+        valores.forEach(function(valor) {
+            $('#valoresTableBody').append(`
+                <tr>
+                    <td>${valor.nome}</td>
+                    <td>${valor.tipo}</td>
+                    <td>${valor.tamanho}</td>
+                    <td>${valor.divisoria}</td>
+                    <td>${valor.valor.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-success editar-valor" data-id="${valor.id}"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn btn-danger salvar-edicao" style="display:none;" data-id="${valor.id}"><i class="fas fa-save"></i> Salvar</button>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    // Função para enviar os dados do valor para a página de vendas
+    function enviarParaVendas(valor) {
+        let valores = JSON.parse(localStorage.getItem('valores')) || [];
+        valores.push(valor);
+        localStorage.setItem('valores', JSON.stringify(valores));
+        preencherTabela(valores);
+    }
+
+    // Carregar valores do localStorage ao carregar a página
+    $(document).ready(function() {
+        let valores = JSON.parse(localStorage.getItem('valores')) || [];
+        preencherTabela(valores);
+    });
+
+    // Manipular envio do formulário de cadastro de valores
+    $('#formValores').submit(function(event) {
+        event.preventDefault();
+        // Coleta os dados do formulário e os prepara para serem enviados para a página de vendas
+        let valor = {
+            id: gerarID(), // Gerar um ID único para o produto
+            nome: $('#produtoNome').val(),
+            tipo: $('#produtoTipo').val(),
+            tamanho: $('#tamanho').val(),
+            divisoria: $('#divisoria').val(),
+            valor: parseFloat($('#valor').val()) // Converter para número decimal
+        };
+        enviarParaVendas(valor);
+        alert('Valor cadastrado com sucesso!');
+        // Limpar formulário após o cadastro
+        $('#formValores')[0].reset();
+    });
+
+    // Botão de edição de valor
+    $(document).on('click', '.editar-valor', function() {
+        $(this).hide();
+        $(this).siblings('.salvar-edicao').show();
+        let row = $(this).closest('tr');
+        row.find('td:not(:last-child)').each(function() { // Excluir a última coluna de ação
+            let valor = $(this).text();
+            let input = $('<input>').val(valor);
+            $(this).html(input);
+        });
+    });
+
+    // Botão de salvamento de edição
+    $(document).on('click', '.salvar-edicao', function() {
+        let row = $(this).closest('tr');
+        let id = $(this).data('id');
+        let nome = row.find('td:eq(0) input').val();
+        let tipo = row.find('td:eq(1) input').val();
+        let tamanho = row.find('td:eq(2) input').val();
+        let divisoria = row.find('td:eq(3) input').val();
+        let valor = parseFloat(row.find('td:eq(4) input').val()); // Converter para número decimal
+        let valores = JSON.parse(localStorage.getItem('valores')) || [];
+        let index = valores.findIndex(function(item) {
+            return item.id === id;
+        });
+        if (index !== -1) {
+            valores[index] = {
+                id: id,
+                nome: nome,
+                tipo: tipo,
+                tamanho: tamanho,
+                divisoria: divisoria,
+                valor: valor
+            };
+            localStorage.setItem('valores', JSON.stringify(valores));
+            preencherTabela(valores);
+            $(this).hide();
+            $(this).siblings('.editar-valor').show();
+        }
+    });
+
+    // Função para gerar ID único
+    function gerarID() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
+    </script>
+
+</body>
+</html>
