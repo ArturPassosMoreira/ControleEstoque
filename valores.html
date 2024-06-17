@@ -138,17 +138,42 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-    // Função para preencher a tabela com os valores cadastrados
+    const nomesProdutos = ["Mochila Infantil", "Mochila Juvenil", "Mochila Company", "Lancheira", "Porta lápis"];
+    const tiposProdutos = ["Costa", "Carrinho", "Furada", "Outro"];
+    const tamanhos = ["P", "M", "G", "Outro"];
+    const divisoes = ["1", "2", "3", "4", "5", "Outro"];
+
+    function gerarCombinacoes() {
+        let combinacoes = [];
+        nomesProdutos.forEach(nome => {
+            tiposProdutos.forEach(tipo => {
+                tamanhos.forEach(tamanho => {
+                    divisoes.forEach(divisoria => {
+                        combinacoes.push({
+                            id: gerarID(),
+                            nome: nome,
+                            tipo: tipo,
+                            tamanho: tamanho,
+                            divisoria: divisoria,
+                            valor: 0.0
+                        });
+                    });
+                });
+            });
+        });
+        return combinacoes;
+    }
+
     function preencherTabela(valores) {
         $('#valoresTableBody').empty();
         valores.forEach(function(valor) {
             $('#valoresTableBody').append(`
-                <tr>
+                <tr data-id="${valor.id}">
                     <td>${valor.nome}</td>
                     <td>${valor.tipo}</td>
                     <td>${valor.tamanho}</td>
                     <td>${valor.divisoria}</td>
-                    <td>${valor.valor.toFixed(2)}</td>
+                    <td class="valor">${valor.valor.toFixed(2)}</td>
                     <td>
                         <button class="btn btn-success editar-valor" data-id="${valor.id}"><i class="fas fa-edit"></i> Editar</button>
                         <button class="btn btn-danger salvar-edicao" style="display:none;" data-id="${valor.id}"><i class="fas fa-save"></i> Salvar</button>
@@ -158,80 +183,65 @@
         });
     }
 
-    // Função para enviar os dados do valor para a página de vendas
-    function enviarParaVendas(valor) {
-        let valores = JSON.parse(localStorage.getItem('valores')) || [];
-        valores.push(valor);
+    function carregarValores() {
+        let valores = JSON.parse(localStorage.getItem('valores')) || gerarCombinacoes();
         localStorage.setItem('valores', JSON.stringify(valores));
         preencherTabela(valores);
     }
 
-    // Carregar valores do localStorage ao carregar a página
     $(document).ready(function() {
-        let valores = JSON.parse(localStorage.getItem('valores')) || [];
-        preencherTabela(valores);
+        carregarValores();
     });
 
-    // Manipular envio do formulário de cadastro de valores
     $('#formValores').submit(function(event) {
         event.preventDefault();
-        // Coleta os dados do formulário e os prepara para serem enviados para a página de vendas
-        let valor = {
-            id: gerarID(), // Gerar um ID único para o produto
-            nome: $('#produtoNome').val(),
-            tipo: $('#produtoTipo').val(),
-            tamanho: $('#tamanho').val(),
-            divisoria: $('#divisoria').val(),
-            valor: parseFloat($('#valor').val()) // Converter para número decimal
-        };
-        enviarParaVendas(valor);
-        alert('Valor cadastrado com sucesso!');
-        // Limpar formulário após o cadastro
-        $('#formValores')[0].reset();
-    });
+        let nome = $('#produtoNome').val();
+        let tipo = $('#produtoTipo').val();
+        let tamanho = $('#tamanho').val();
+        let divisoria = $('#divisoria').val();
+        let valor = parseFloat($('#valor').val());
 
-    // Botão de edição de valor
-    $(document).on('click', '.editar-valor', function() {
-        $(this).hide();
-        $(this).siblings('.salvar-edicao').show();
-        let row = $(this).closest('tr');
-        row.find('td:not(:last-child)').each(function() { // Excluir a última coluna de ação
-            let valor = $(this).text();
-            let input = $('<input>').val(valor);
-            $(this).html(input);
-        });
-    });
-
-    // Botão de salvamento de edição
-    $(document).on('click', '.salvar-edicao', function() {
-        let row = $(this).closest('tr');
-        let id = $(this).data('id');
-        let nome = row.find('td:eq(0) input').val();
-        let tipo = row.find('td:eq(1) input').val();
-        let tamanho = row.find('td:eq(2) input').val();
-        let divisoria = row.find('td:eq(3) input').val();
-        let valor = parseFloat(row.find('td:eq(4) input').val()); // Converter para número decimal
         let valores = JSON.parse(localStorage.getItem('valores')) || [];
-        let index = valores.findIndex(function(item) {
-            return item.id === id;
-        });
+        let index = valores.findIndex(v => v.nome === nome && v.tipo === tipo && v.tamanho === tamanho && v.divisoria === divisoria);
         if (index !== -1) {
-            valores[index] = {
-                id: id,
+            valores[index].valor = valor;
+        } else {
+            valores.push({
+                id: gerarID(),
                 nome: nome,
                 tipo: tipo,
                 tamanho: tamanho,
                 divisoria: divisoria,
                 valor: valor
-            };
+            });
+        }
+        localStorage.setItem('valores', JSON.stringify(valores));
+        preencherTabela(valores);
+        alert('Valor cadastrado com sucesso!');
+        $('#formValores')[0].reset();
+    });
+
+    $(document).on('click', '.editar-valor', function() {
+        let row = $(this).closest('tr');
+        row.find('.valor').html(`<input type="number" class="form-control valor-edit" value="${row.find('.valor').text()}">`);
+        $(this).hide();
+        row.find('.salvar-edicao').show();
+    });
+
+    $(document).on('click', '.salvar-edicao', function() {
+        let row = $(this).closest('tr');
+        let id = $(this).data('id');
+        let valor = parseFloat(row.find('.valor-edit').val());
+        
+        let valores = JSON.parse(localStorage.getItem('valores')) || [];
+        let index = valores.findIndex(v => v.id === id);
+        if (index !== -1) {
+            valores[index].valor = valor;
             localStorage.setItem('valores', JSON.stringify(valores));
             preencherTabela(valores);
-            $(this).hide();
-            $(this).siblings('.editar-valor').show();
         }
     });
 
-    // Função para gerar ID único
     function gerarID() {
         return '_' + Math.random().toString(36).substr(2, 9);
     }

@@ -14,24 +14,48 @@
             padding: 20px 0;
             text-align: center;
         }
-        .btn-home {
+        .btn-home, .btn-cart {
             background-color: #007bff;
             color: #ffffff;
             border: none;
             margin-left: 15px;
         }
-        h1{
+        h1 {
             margin: auto;
             margin-left: -1vh;
+        }
+        .form-group.inline-group {
+            display: flex;
+            align-items: flex-end;
+        }
+        .form-group.inline-group > div {
+            flex: 1;
+            padding-right: 10px;
+        }
+        .form-group.inline-group > div:last-child {
+            padding-right: 0;
+        }
+        .cart-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <!-- Cabeçalho da página -->
     <header class="d-flex justify-content-between align-items-center">
-        <!-- Botão de ir para index.html com ícone de casa -->
         <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
         <h1>Vendas</h1>
+        <div class="position-relative">
+            <a href="carrinhocompras.html" target="_self" class="btn btn-cart"><i class="fas fa-shopping-cart"></i></a>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
     </header>
     <div class="container">
         <h1 class="mt-5 mb-4">Realizar Venda</h1>
@@ -40,18 +64,13 @@
                 <label for="produto">Nome do Produto:</label>
                 <select class="form-control" id="produto" required>
                     <!-- Opções de produtos carregadas dinamicamente -->
-                    <option value="Selecione o Nome">Selecione o Tamanho</option>
-                    <option value="Mochila Infantil" data-tipo="Costa" data-tamanho="P" data-divisoria="1" data-valor="50.00">Mochila Infantil</option>
-                    <option value="Mochila Juvenil" data-tipo="Carrinho" data-tamanho="M" data-divisoria="2" data-valor="60.00">Mochila Juvenil</option>
-                    <option value="Mochila Company" data-tipo="Furada" data-tamanho="G" data-divisoria="3" data-valor="70.00">Mochila Company</option>
-                    <option value="Lancheira" data-tipo="Outro" data-tamanho="Outro" data-divisoria="4" data-valor="40.00">Lancheira</option>
-                    <option value="Porta lápis" data-tipo="Outro" data-tamanho="Outro" data-divisoria="5" data-valor="20.00">Porta lápis</option>
+                    <option value="">Selecione o produto</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
-                <select class="form-control" id="tipo" readonly>
-                    <option value="Selecione o Tipo">Selecione  o Tipo</option>
+                <select class="form-control" id="tipo" required>
+                    <option value="">Selecione o tipo</option>
                     <option value="Costa">Costa</option>
                     <option value="Carrinho">Carrinho</option>
                     <option value="Furada">Furada</option>
@@ -60,8 +79,8 @@
             </div>
             <div class="form-group">
                 <label for="tamanho">Tamanho:</label>
-                <select class="form-control" id="tamanho" readonly>
-                    <option value="Selecione o Tamanho">Selecione o Tamanho</option>
+                <select class="form-control" id="tamanho" required>
+                    <option value="">Selecione o tamanho</option>
                     <option value="P">P</option>
                     <option value="M">M</option>
                     <option value="G">G</option>
@@ -69,10 +88,9 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="reparticoes">Repartições</label>
-                <!-- Dropdown para selecionar o número de repartições -->
-                <select class="form-control" id="reparticoes" required>
-                    <option value="">Selecione as repartições</option>
+                <label for="divisoria">Divisória</label>
+                <select class="form-control" id="divisoria" required>
+                    <option value="">Selecione a divisória</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -83,7 +101,7 @@
             </div>
             <div class="form-group">
                 <label for="personagem">Personagem:</label>
-                <select class="form-control" id="personagem" readonly>
+                <select class="form-control" id="personagem" required>
                     <!-- Opções de personagens carregadas dinamicamente -->
                 </select>
             </div>
@@ -95,15 +113,21 @@
                 <label for="valor">Valor (R$):</label>
                 <input type="text" class="form-control" id="valor" readonly>
             </div>
-            <div class="form-group">
-                <label for="desconto">Desconto (R$):</label>
-                <input type="number" class="form-control" id="desconto" min="0">
+            <div class="form-group inline-group">
+                <div>
+                    <label for="desconto">Desconto (R$):</label>
+                    <input type="number" class="form-control" id="desconto" min="0">
+                </div>
+                <div>
+                    <label for="descontoPorcentagem">Desconto (%):</label>
+                    <input type="number" class="form-control" id="descontoPorcentagem" min="0" max="100">
+                </div>
             </div>
             <div class="form-group">
                 <label for="total">Total (R$):</label>
                 <input type="text" class="form-control" id="total" readonly>
             </div>
-            <button type="submit" class="btn btn-primary">Realizar Venda</button>
+            <button type="submit" class="btn btn-primary">Adicionar ao Carrinho</button>
         </form>
     </div>
 
@@ -112,37 +136,55 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Atualizar campos de informações do produto ao selecionar
-            $('#produto').change(function() {
-                let option = $(this).find('option:selected');
-                $('#tipo').val(option.data('tipo'));
-                $('#tamanho').val(option.data('tamanho'));
-                $('#valor').val(option.data('valor'));
-                calcularTotal();
-            });
-
-            // Carregar opções de personagens no select
-            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+            // Carregar produtos no select de produto
+            let valores = JSON.parse(localStorage.getItem('valores')) || [];
+            let selectProduto = $('#produto');
             let selectPersonagem = $('#personagem');
+
+            // Popula o dropdown de personagens
+            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
             personagens.forEach(function(personagem) {
                 selectPersonagem.append(`<option value="${personagem}">${personagem}</option>`);
             });
 
+            // Popula o dropdown de produtos
+            valores.forEach(function(valor) {
+                selectProduto.append(`<option value="${valor.nome}" data-tipo="${valor.tipo}" data-tamanho="${valor.tamanho}" data-divisoria="${valor.divisoria}" data-valor="${valor.valor.toFixed(2)}">${valor.nome}</option>`);
+            });
+
+            // Atualizar campos de informações do produto ao selecionar
+            $('#produto, #tipo, #tamanho, #divisoria').change(function() {
+                atualizarValor();
+            });
+
+            // Atualiza o valor e o total quando os campos mudam
+            function atualizarValor() {
+                let nome = $('#produto').val();
+                let tipo = $('#tipo').val();
+                let tamanho = $('#tamanho').val();
+                let divisoria = $('#divisoria').val();
+
+                let valorEncontrado = valores.find(v => v.nome === nome && v.tipo === tipo && v.tamanho === tamanho && v.divisoria === divisoria);
+                if (valorEncontrado) {
+                    $('#valor').val(valorEncontrado.valor.toFixed(2));
+                    calcularTotal();
+                } else {
+                    $('#valor').val('');
+                    $('#total').val('');
+                }
+            }
+
             // Calcular o total ao alterar a quantidade ou o desconto
-            $('#quantidade, #desconto').change(function() {
+            $('#quantidade, #desconto, #descontoPorcentagem').change(function() {
                 calcularTotal();
             });
 
             // Evento de envio do formulário de venda
             $('#formVenda').submit(function(event) {
                 event.preventDefault();
-                // Simulando uma venda com alertas
-                alert('Venda realizada com sucesso!');
-                // Você precisará modificar isso para que funcione corretamente com a sua aplicação
-
-                // Após realizar a venda, limpe o formulário
-                $('#quantidade, #desconto').val('');
-                $('#produto').val($('#produto option:first').val()).change(); // Retorna ao primeiro produto
+                adicionarAoCarrinho();
+                alert('Produto adicionado ao carrinho com sucesso!');
+                $('#formVenda')[0].reset();
             });
 
             // Função para calcular o total da venda
@@ -150,12 +192,21 @@
                 let quantidade = parseInt($('#quantidade').val()) || 0;
                 let valor = parseFloat($('#valor').val()) || 0;
                 let desconto = parseFloat($('#desconto').val()) || 0;
-                let total = (quantidade * valor) - desconto;
+                let descontoPorcentagem = parseFloat($('#descontoPorcentagem').val()) || 0;
+                let total = (quantidade * valor) - desconto - (descontoPorcentagem / 100 * quantidade * valor);
                 $('#total').val(total.toFixed(2));
             }
 
+            // Função para adicionar ao carrinho
+            function adicionarAoCarrinho() {
+                let cartCount = parseInt($('#cartCount').text()) || 0;
+                $('#cartCount').text(cartCount + 1);
+            }
+
             // Simular a seleção do primeiro produto ao carregar a página
-            $('#produto').change();
+            if (selectProduto.children('option').length > 1) {
+                selectProduto.val(selectProduto.children('option').eq(1).val()).change();
+            }
         });
     </script>
 </body>

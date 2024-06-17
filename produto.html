@@ -107,8 +107,8 @@
                     </select>
                     <!-- Botões para adicionar e remover personagens -->
                     <div class="input-group-append">
-                        <button type="button" class="btn btn-primary" id="adicionarPersonagem">Adicionar </button>
-                        <button type="button" class="btn btn-danger" id="removerPersonagem">Remover </button>
+                        <button type="button" class="btn btn-primary" id="adicionarPersonagem">Adicionar</button>
+                        <button type="button" class="btn btn-danger" id="removerPersonagem">Remover</button>
                     </div>
                 </div>
                 <!-- Campo para inserir novo personagem -->
@@ -119,7 +119,7 @@
             <!-- Campo: Quantidade -->
             <div class="form-group">
                 <label for="quantidade">Quantidade</label>
-                <input type="number" class="form-control" id="quantidade" required>
+                <input type="number" class="form-control" id="quantidade" required min="1">
             </div>
             <!-- Campo: Tamanho -->
             <div class="form-group">
@@ -198,6 +198,11 @@
         alert('Produto cadastrado com sucesso!');
         // Limpar formulário após o cadastro
         $('#formProduto')[0].reset();
+        $('#produtoPersonagem').empty();
+        let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+        personagens.forEach(function(personagem) {
+            $('#produtoPersonagem').append(`<option value="${personagem}">${personagem}</option>`);
+        });
     });
 
     // Adicionar ou exibir campo de input para novo personagem

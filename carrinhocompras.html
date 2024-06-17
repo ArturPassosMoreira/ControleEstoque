@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Carrinho de Compras - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Adicione o link para a biblioteca Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            text-align: center;
+            margin: auto;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .btn-editar, .btn-excluir {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .btn-cliente {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-cliente:hover {
+            background-color: #0056b3;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+        .modal-header {
+            border-bottom: none;
+        }
+        .modal-title {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="d-flex justify-content-between align-items-center">
+        <!-- Botão de ir para index.html com ícone de casa -->
+        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
+        <h1>Gerenciamento de Carrinho de Compras</h1>
+    </header>
+    <div class="container">
+        <h2>Carrinho de Compras</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Item</th>
+                            <th scope="col">Quantidade</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaItens">
+                        <!-- Itens do carrinho serão adicionados dinamicamente aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Cliente</h5>
+                        <div class="form-group">
+                            <select class="form-control" id="selectCliente">
+                                <!-- Opções de clientes serão adicionadas dinamicamente aqui -->
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block">Finalizar Compra</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar quantidade de item -->
+    <div class="modal fade" id="modalEditarQuantidade" tabindex="-1" role="dialog" aria-labelledby="modalEditarQuantidadeLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarQuantidadeLabel">Editar Quantidade</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarQuantidade">
+                        <div class="form-group">
+                            <label for="quantidadeEdit">Quantidade:</label>
+                            <input type="number" class="form-control" id="quantidadeEdit" min="1" required>
+                        </div>
+                        <input type="hidden" id="itemIndex">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarQuantidade">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Função para carregar os itens do localStorage e exibi-los na tabela
+        function carregarItensCarrinho() {
+            let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
+            let listaItens = $('#listaItens');
+            listaItens.empty();
+            itensCarrinho.forEach(function(item, index) {
+                listaItens.append(`
+                    <tr id="item-${index}">
+                        <td>${item.nome}</td>
+                        <td>${item.quantidade}</td>
+                        <td>
+                            <button class="btn btn-primary btn-editar" data-index="${index}" data-toggle="modal" data-target="#modalEditarQuantidade">Editar</button>
+                            <button class="btn btn-danger btn-excluir" data-index="${index}">Excluir</button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            // Adicionar evento de clique em cada botão de editar
+            listaItens.on('click', '.btn-editar', function() {
+                let index = $(this).data('index');
+                $('#quantidadeEdit').val(itensCarrinho[index].quantidade);
+                $('#itemIndex').val(index);
+            });
+
+            // Adicionar evento de clique em cada botão de excluir
+            listaItens.on('click', '.btn-excluir', function() {
+                let index = $(this).data('index');
+                if (confirm("Tem certeza de que deseja excluir este item do carrinho?")) {
+                    excluirItemCarrinho(index);
+                }
+            });
+        }
+
+        // Função para excluir um item do carrinho
+        function excluirItemCarrinho(index) {
+            let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
+            itensCarrinho.splice(index, 1); // Remove o item do array
+            localStorage.setItem('itensCarrinho', JSON.stringify(itensCarrinho));
+            carregarItensCarrinho(); // Atualiza a lista de itens do carrinho
+            alert('Item do carrinho excluído com sucesso!');
+        }
+
+        // Função para salvar as alterações de quantidade do item
+        $('#btnSalvarQuantidade').click(function() {
+            let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
+            let index = $('#itemIndex').val();
+            itensCarrinho[index].quantidade = $('#quantidadeEdit').val();
+            localStorage.setItem('itensCarrinho', JSON.stringify(itensCarrinho));
+            $('#modalEditarQuantidade').modal('hide');
+            carregarItensCarrinho(); // Atualiza a lista de itens do carrinho
+            alert('Quantidade do item atualizada com sucesso!');
+        });
+
+        // Função para carregar os clientes do localStorage e exibi-los no dropdown
+        function carregarClientes() {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            let selectCliente = $('#selectCliente');
+            selectCliente.empty();
+            selectCliente.append('<option value="">Selecione um cliente...</option>');
+            clientes.forEach(function(cliente) {
+                selectCliente.append(`<option value="${cliente.nome}">${cliente.nome}</option>`);
+            });
+        }
+
+        // Carregar os itens do carrinho e clientes ao carregar a página
+        $(document).ready(function() {
+            carregarItensCarrinho();
+            carregarClientes();
+        });
+    </script>
+</body>
+</html>
