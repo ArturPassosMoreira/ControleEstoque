@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Realizar Venda</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Adicione o link para a biblioteca Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         header {
@@ -48,7 +47,6 @@
     </style>
 </head>
 <body>
-    <!-- Cabeçalho da página -->
     <header class="d-flex justify-content-between align-items-center">
         <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
         <h1>Vendas</h1>
@@ -63,7 +61,6 @@
             <div class="form-group">
                 <label for="produto">Nome do Produto:</label>
                 <select class="form-control" id="produto" required>
-                    <!-- Opções de produtos carregadas dinamicamente -->
                     <option value="">Selecione o produto</option>
                 </select>
             </div>
@@ -102,12 +99,15 @@
             <div class="form-group">
                 <label for="personagem">Personagem:</label>
                 <select class="form-control" id="personagem" required>
-                    <!-- Opções de personagens carregadas dinamicamente -->
                 </select>
             </div>
             <div class="form-group">
                 <label for="quantidade">Quantidade:</label>
                 <input type="number" class="form-control" id="quantidade" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="estoque">Em Estoque:</label>
+                <input type="text" class="form-control" id="estoque" readonly>
             </div>
             <div class="form-group">
                 <label for="valor">Valor (R$):</label>
@@ -136,28 +136,25 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Carregar produtos no select de produto
             let valores = JSON.parse(localStorage.getItem('valores')) || [];
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
             let selectProduto = $('#produto');
             let selectPersonagem = $('#personagem');
 
-            // Popula o dropdown de personagens
             let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
             personagens.forEach(function(personagem) {
                 selectPersonagem.append(`<option value="${personagem}">${personagem}</option>`);
             });
 
-            // Popula o dropdown de produtos
             valores.forEach(function(valor) {
                 selectProduto.append(`<option value="${valor.nome}" data-tipo="${valor.tipo}" data-tamanho="${valor.tamanho}" data-divisoria="${valor.divisoria}" data-valor="${valor.valor.toFixed(2)}">${valor.nome}</option>`);
             });
 
-            // Atualizar campos de informações do produto ao selecionar
-            $('#produto, #tipo, #tamanho, #divisoria').change(function() {
+            $('#produto, #tipo, #tamanho, #divisoria, #personagem').change(function() {
                 atualizarValor();
+                atualizarEstoque();
             });
 
-            // Atualiza o valor e o total quando os campos mudam
             function atualizarValor() {
                 let nome = $('#produto').val();
                 let tipo = $('#tipo').val();
@@ -174,20 +171,43 @@
                 }
             }
 
-            // Calcular o total ao alterar a quantidade ou o desconto
+            function atualizarEstoque() {
+                let nome = $('#produto').val();
+                let tipo = $('#tipo').val();
+                let tamanho = $('#tamanho').val();
+                let divisoria = $('#divisoria').val();
+                let personagem = $('#personagem').val();
+
+                let produtoEncontrado = produtos.find(p => p.nome === nome && p.tipo === tipo && p.tamanho === tamanho && p.reparticoes === divisoria && p.personagem === personagem);
+                if (produtoEncontrado) {
+                    $('#estoque').val(produtoEncontrado.quantidade);
+                } else {
+                    $('#estoque').val('0');
+                }
+            }
+
             $('#quantidade, #desconto, #descontoPorcentagem').change(function() {
                 calcularTotal();
             });
 
-            // Evento de envio do formulário de venda
             $('#formVenda').submit(function(event) {
                 event.preventDefault();
-                adicionarAoCarrinho();
-                alert('Produto adicionado ao carrinho com sucesso!');
-                $('#formVenda')[0].reset();
+                if (validarEstoque()) {
+                    adicionarAoCarrinho();
+                    alert('Produto adicionado ao carrinho com sucesso!');
+                    $('#formVenda')[0].reset();
+                    $('#produto').change(); // Trigger change to refresh stock and value
+                } else {
+                    alert('Quantidade em estoque insuficiente.');
+                }
             });
 
-            // Função para calcular o total da venda
+            function validarEstoque() {
+                let quantidade = parseInt($('#quantidade').val()) || 0;
+                let estoque = parseInt($('#estoque').val()) || 0;
+                return quantidade <= estoque;
+            }
+
             function calcularTotal() {
                 let quantidade = parseInt($('#quantidade').val()) || 0;
                 let valor = parseFloat($('#valor').val()) || 0;
@@ -197,13 +217,38 @@
                 $('#total').val(total.toFixed(2));
             }
 
-            // Função para adicionar ao carrinho
             function adicionarAoCarrinho() {
+                let nome = $('#produto').val();
+                let tipo = $('#tipo').val();
+                let tamanho = $('#tamanho').val();
+                let divisoria = $('#divisoria').val();
+                let personagem = $('#personagem').val();
+                let quantidade = parseInt($('#quantidade').val()) || 0;
+                let valor = parseFloat($('#valor').val()) || 0;
+                let desconto = parseFloat($('#desconto').val()) || 0;
+                let descontoPorcentagem = parseFloat($('#descontoPorcentagem').val()) || 0;
+                let total = parseFloat($('#total').val()) || 0;
+
+                let itemCarrinho = {
+                    nome,
+                    tipo,
+                    tamanho,
+                    divisoria,
+                    personagem,
+                    quantidade,
+                    valor,
+                    desconto,
+                    descontoPorcentagem,
+                    total
+                };
+
+                let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
+                itensCarrinho.push(itemCarrinho);
+                localStorage.setItem('itensCarrinho', JSON.stringify(itensCarrinho));
                 let cartCount = parseInt($('#cartCount').text()) || 0;
                 $('#cartCount').text(cartCount + 1);
             }
 
-            // Simular a seleção do primeiro produto ao carregar a página
             if (selectProduto.children('option').length > 1) {
                 selectProduto.val(selectProduto.children('option').eq(1).val()).change();
             }

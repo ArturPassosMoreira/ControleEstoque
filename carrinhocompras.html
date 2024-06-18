@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamento de Carrinho de Compras - Utopia</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Adicione o link para a biblioteca Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         header {
@@ -13,7 +12,6 @@
             color: #ffffff;
             padding: 20px 0;
             text-align: center;
-            margin-bottom: 20px;
         }
         body {
             background-color: #f8f9fa;
@@ -24,7 +22,6 @@
         }
         h1, h2 {
             text-align: center;
-            margin: auto;
         }
         .table {
             margin-top: 20px;
@@ -74,30 +71,48 @@
             color: #ffffff;
             border: none;
         }
+        @media (max-width: 767px) {
+            .table-responsive {
+                margin-bottom: 15px;
+            }
+            .table-responsive .table {
+                margin-bottom: 0;
+            }
+            .btn {
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <header class="d-flex justify-content-between align-items-center">
-        <!-- Botão de ir para index.html com ícone de casa -->
-        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
+        <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
         <h1>Gerenciamento de Carrinho de Compras</h1>
     </header>
     <div class="container">
         <h2>Carrinho de Compras</h2>
         <div class="row">
             <div class="col-md-8">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Item</th>
-                            <th scope="col">Quantidade</th>
-                            <th scope="col">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaItens">
-                        <!-- Itens do carrinho serão adicionados dinamicamente aqui -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Quantidade</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Tamanho</th>
+                                <th scope="col">Divisória</th>
+                                <th scope="col">Personagem</th>
+                                <th scope="col">Valor Unitário (R$)</th>
+                                <th scope="col">Desconto (R$)</th>
+                                <th scope="col">Total (R$)</th>
+                                <th scope="col">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaItens">
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="col-md-4">
                 <div class="card">
@@ -105,17 +120,20 @@
                         <h5 class="card-title">Cliente</h5>
                         <div class="form-group">
                             <select class="form-control" id="selectCliente">
-                                <!-- Opções de clientes serão adicionadas dinamicamente aqui -->
                             </select>
                         </div>
-                        <button type="button" class="btn btn-primary btn-block">Finalizar Compra</button>
+                        <h5 class="card-title">Vendedor</h5>
+                        <div class="form-group">
+                            <select class="form-control" id="selectVendedor">
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block" id="finalizarCompra">Finalizar Compra</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para editar quantidade de item -->
     <div class="modal fade" id="modalEditarQuantidade" tabindex="-1" role="dialog" aria-labelledby="modalEditarQuantidadeLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -152,10 +170,18 @@
             let listaItens = $('#listaItens');
             listaItens.empty();
             itensCarrinho.forEach(function(item, index) {
+                let total = (item.quantidade * item.valor) - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor);
                 listaItens.append(`
                     <tr id="item-${index}">
                         <td>${item.nome}</td>
                         <td>${item.quantidade}</td>
+                        <td>${item.tipo}</td>
+                        <td>${item.tamanho}</td>
+                        <td>${item.divisoria}</td>
+                        <td>${item.personagem}</td>
+                        <td>${item.valor.toFixed(2)}</td>
+                        <td>${item.desconto.toFixed(2)}</td>
+                        <td>${total.toFixed(2)}</td>
                         <td>
                             <button class="btn btn-primary btn-editar" data-index="${index}" data-toggle="modal" data-target="#modalEditarQuantidade">Editar</button>
                             <button class="btn btn-danger btn-excluir" data-index="${index}">Excluir</button>
@@ -211,10 +237,40 @@
             });
         }
 
-        // Carregar os itens do carrinho e clientes ao carregar a página
+        // Função para carregar os vendedores do localStorage e exibi-los no dropdown
+        function carregarVendedores() {
+            let vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+            let selectVendedor = $('#selectVendedor');
+            selectVendedor.empty();
+            selectVendedor.append('<option value="">Selecione um vendedor...</option>');
+            vendedores.forEach(function(vendedor) {
+                selectVendedor.append(`<option value="${vendedor.nome}">${vendedor.nome}</option>`);
+            });
+        }
+
+        // Função para finalizar a compra e atualizar o estoque
+        $('#finalizarCompra').click(function() {
+            let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+
+            itensCarrinho.forEach(function(item) {
+                let produtoEncontrado = produtos.find(p => p.nome === item.nome && p.tipo === item.tipo && p.tamanho === item.tamanho && p.reparticoes === item.divisoria && p.personagem === item.personagem);
+                if (produtoEncontrado) {
+                    produtoEncontrado.quantidade -= item.quantidade;
+                }
+            });
+
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+            localStorage.setItem('itensCarrinho', JSON.stringify([])); // Clear cart
+            carregarItensCarrinho();
+            alert('Compra finalizada com sucesso e estoque atualizado!');
+        });
+
+        // Carregar os itens do carrinho, clientes e vendedores ao carregar a página
         $(document).ready(function() {
             carregarItensCarrinho();
             carregarClientes();
+            carregarVendedores();
         });
     </script>
 </body>
