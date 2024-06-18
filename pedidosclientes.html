@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos de Clientes - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-home:hover {
+            background-color: #0056b3;
+        }
+        .btn-download {
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-download:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header class="d-flex justify-content-between align-items-center">
+        <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
+        <h1>Pedidos de Clientes</h1>
+    </header>
+    <div class="container">
+        <h2>Lista de Clientes</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="list-group" id="listaClientes">
+                    <!-- Clientes serão adicionados aqui dinamicamente -->
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="detalhesCliente" style="display: none;">
+                    <h3 id="clienteNome"></h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Comprovante de Compras</h5>
+                            <ul class="list-group" id="comprovanteCompras">
+                                <!-- Compras serão adicionadas aqui dinamicamente -->
+                            </ul>
+                            <div class="text-right">
+                                <button class="btn btn-download" id="btnDownloadComprovante">Baixar Comprovante</button>
+                            </div>
+                        </div>
+                    </div>
+                    <h4>Total de Compras: R$ <span id="totalCompras"></span></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Dados de exemplo para simular clientes e compras
+        let clientes = [
+            { id: 1, nome: 'Cliente A' },
+            { id: 2, nome: 'Cliente B' },
+            { id: 3, nome: 'Cliente C' }
+        ];
+
+        let compras = [
+            { clienteId: 1, valor: 150 },
+            { clienteId: 1, valor: 200 },
+            { clienteId: 2, valor: 100 },
+            { clienteId: 3, valor: 300 }
+        ];
+
+        // Função para carregar a lista de clientes
+        function carregarListaClientes() {
+            let listaClientes = $('#listaClientes');
+            listaClientes.empty();
+            clientes.forEach(function(cliente) {
+                listaClientes.append(`
+                    <a href="#" class="list-group-item list-group-item-action" data-cliente-id="${cliente.id}">${cliente.nome}</a>
+                `);
+            });
+        }
+
+        // Função para exibir detalhes do cliente ao clicar
+        $('#listaClientes').on('click', '.list-group-item', function(e) {
+            e.preventDefault();
+            let clienteId = $(this).data('cliente-id');
+            let cliente = clientes.find(c => c.id === clienteId);
+            $('#clienteNome').text(cliente.nome);
+
+            let totalCompras = 0;
+            let comprovanteCompras = $('#comprovanteCompras');
+            comprovanteCompras.empty();
+            compras.forEach(function(compra) {
+                if (compra.clienteId === clienteId) {
+                    comprovanteCompras.append(`
+                        <li class="list-group-item">Compra no valor de R$ ${compra.valor.toFixed(2)}</li>
+                    `);
+                    totalCompras += compra.valor;
+                }
+            });
+
+            $('#totalCompras').text(totalCompras.toFixed(2));
+            $('#detalhesCliente').show();
+        });
+
+        // Função para baixar o comprovante em formato PDF
+        $('#btnDownloadComprovante').click(function() {
+            // Lógica para gerar e baixar o PDF aqui (não implementado neste exemplo)
+            alert('Comprovante baixado com sucesso!');
+        });
+
+        // Carregar a lista de clientes ao carregar a página
+        $(document).ready(function() {
+            carregarListaClientes();
+        });
+    </script>
+</body>
+</html>
