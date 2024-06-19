@@ -98,14 +98,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">Item</th>
-                                <th scope="col">Quantidade</th>
-                                <th scope="col">Tipo</th>
-                                <th scope="col">Tamanho</th>
-                                <th scope="col">Divisória</th>
-                                <th scope="col">Personagem</th>
-                                <th scope="col">Valor Unitário (R$)</th>
-                                <th scope="col">Desconto (R$)</th>
-                                <th scope="col">Total (R$)</th>
+                                <th scope="col">Detalhes</th>
                                 <th scope="col">Ações</th>
                             </tr>
                         </thead>
@@ -174,14 +167,17 @@
                 listaItens.append(`
                     <tr id="item-${index}">
                         <td>${item.nome}</td>
-                        <td>${item.quantidade}</td>
-                        <td>${item.tipo}</td>
-                        <td>${item.tamanho}</td>
-                        <td>${item.divisoria}</td>
-                        <td>${item.personagem}</td>
-                        <td>${item.valor.toFixed(2)}</td>
-                        <td>${item.desconto.toFixed(2)}</td>
-                        <td>${total.toFixed(2)}</td>
+                        <td>
+                            <div><strong>Quantidade:</strong> ${item.quantidade}</div>
+                            <div><strong>Tipo:</strong> ${item.tipo}</div>
+                            <div><strong>Tamanho:</strong> ${item.tamanho}</div>
+                            <div><strong>Divisória:</strong> ${item.divisoria}</div>
+                            <div><strong>Personagem:</strong> ${item.personagem}</div>
+                            <div><strong>Valor Unitário (R$):</strong> ${item.valor.toFixed(2)}</div>
+                            <div><strong>Desconto (R$):</strong> ${item.desconto.toFixed(2)}</div>
+                            <div><strong>Desconto (%):</strong> ${item.descontoPorcentagem.toFixed(2)}</div>
+                            <div><strong>Total (R$):</strong> ${total.toFixed(2)}</div>
+                        </td>
                         <td>
                             <button class="btn btn-primary btn-editar" data-index="${index}" data-toggle="modal" data-target="#modalEditarQuantidade">Editar</button>
                             <button class="btn btn-danger btn-excluir" data-index="${index}">Excluir</button>
@@ -252,7 +248,16 @@
         $('#finalizarCompra').click(function() {
             let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
             let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let clienteSelecionado = $('#selectCliente').val();
+            let vendedorSelecionado = $('#selectVendedor').val();
+            
+            if (!clienteSelecionado) {
+                alert('Selecione um cliente antes de finalizar a compra.');
+                return;
+            }
 
+            // Atualizar estoque
             itensCarrinho.forEach(function(item) {
                 let produtoEncontrado = produtos.find(p => p.nome === item.nome && p.tipo === item.tipo && p.tamanho === item.tamanho && p.reparticoes === item.divisoria && p.personagem === item.personagem);
                 if (produtoEncontrado) {
@@ -260,8 +265,20 @@
                 }
             });
 
+            // Agrupar itens do carrinho em um pedido
+            let novoPedido = {
+                cliente: clienteSelecionado,
+                vendedor: vendedorSelecionado,
+                dataHora: new Date().toLocaleString(),
+                itens: itensCarrinho,
+                total: itensCarrinho.reduce((acc, item) => acc + ((item.quantidade * item.valor) - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)), 0)
+            };
+
+            pedidos.push(novoPedido);
+
             localStorage.setItem('produtos', JSON.stringify(produtos));
             localStorage.setItem('itensCarrinho', JSON.stringify([])); // Clear cart
+            localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Save pedidos
             carregarItensCarrinho();
             alert('Compra finalizada com sucesso e estoque atualizado!');
         });

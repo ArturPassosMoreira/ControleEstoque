@@ -42,6 +42,10 @@
         .btn-download:hover {
             background-color: #218838;
         }
+        .btn-toggle-details {
+            margin-left: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -67,7 +71,7 @@
                                 <!-- Compras serão adicionadas aqui dinamicamente -->
                             </ul>
                             <div class="text-right">
-                                <button class="btn btn-download" id="btnDownloadComprovante">Baixar Comprovante</button>
+                                <button class="btn btn-download" id="btnDownloadTodosComprovantes">Baixar Todos Comprovantes</button>
                             </div>
                         </div>
                     </div>
@@ -80,28 +84,23 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script>
-        // Dados de exemplo para simular clientes e compras
-        let clientes = [
-            { id: 1, nome: 'Cliente A' },
-            { id: 2, nome: 'Cliente B' },
-            { id: 3, nome: 'Cliente C' }
-        ];
-
-        let compras = [
-            { clienteId: 1, valor: 150 },
-            { clienteId: 1, valor: 200 },
-            { clienteId: 2, valor: 100 },
-            { clienteId: 3, valor: 300 }
-        ];
+        const { jsPDF } = window.jspdf;
 
         // Função para carregar a lista de clientes
         function carregarListaClientes() {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
             let listaClientes = $('#listaClientes');
             listaClientes.empty();
-            clientes.forEach(function(cliente) {
+
+            // Obter os clientes que têm pedidos
+            let clientesComPedidos = clientes.filter(cliente => pedidos.some(pedido => pedido.cliente === cliente.nome));
+
+            clientesComPedidos.forEach(function(cliente) {
                 listaClientes.append(`
-                    <a href="#" class="list-group-item list-group-item-action" data-cliente-id="${cliente.id}">${cliente.nome}</a>
+                    <a href="#" class="list-group-item list-group-item-action" data-cliente-nome="${cliente.nome}">${cliente.nome}</a>
                 `);
             });
         }
@@ -109,30 +108,146 @@
         // Função para exibir detalhes do cliente ao clicar
         $('#listaClientes').on('click', '.list-group-item', function(e) {
             e.preventDefault();
-            let clienteId = $(this).data('cliente-id');
-            let cliente = clientes.find(c => c.id === clienteId);
-            $('#clienteNome').text(cliente.nome);
+            let clienteNome = $(this).data('cliente-nome');
+            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            $('#clienteNome').text(clienteNome);
 
             let totalCompras = 0;
             let comprovanteCompras = $('#comprovanteCompras');
             comprovanteCompras.empty();
-            compras.forEach(function(compra) {
-                if (compra.clienteId === clienteId) {
-                    comprovanteCompras.append(`
-                        <li class="list-group-item">Compra no valor de R$ ${compra.valor.toFixed(2)}</li>
-                    `);
-                    totalCompras += compra.valor;
-                }
+
+            let pedidosCliente = pedidos.filter(pedido => pedido.cliente === clienteNome);
+
+            pedidosCliente.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora)).forEach(function(pedido, index) {
+                let pedidoHTML = `
+                    <li class="list-group-item" data-pedido-index="${index}">
+                        <div><strong>Data e Hora:</strong> ${pedido.dataHora}</div>
+                        <div><strong>Itens:</strong> <button class="btn btn-info btn-sm btn-ver-detalhes" data-index="${index}">Ver Detalhes</button> <span class="btn-toggle-details" data-index="${index}">&#9660;</span></div>
+                        <div><strong>Total do Pedido:</strong> R$ ${pedido.total.toFixed(2)}</div>
+                        <button class="btn btn-download btn-sm btn-download-comprovante" data-index="${index}">Baixar Comprovante</button>
+                    </li>
+                `;
+                comprovanteCompras.append(pedidoHTML);
+                totalCompras += pedido.total;
             });
 
             $('#totalCompras').text(totalCompras.toFixed(2));
             $('#detalhesCliente').show();
         });
 
-        // Função para baixar o comprovante em formato PDF
-        $('#btnDownloadComprovante').click(function() {
-            // Lógica para gerar e baixar o PDF aqui (não implementado neste exemplo)
-            alert('Comprovante baixado com sucesso!');
+        // Função para mostrar ou esconder detalhes dos itens ao clicar no botão "Ver Detalhes"
+        $('#comprovanteCompras').on('click', '.btn-ver-detalhes, .btn-toggle-details', function() {
+            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let clienteNome = $('#clienteNome').text();
+            let pedidosCliente = pedidos.filter(pedido => pedido.cliente === clienteNome);
+            let index = $(this).data('index');
+            let pedido = pedidosCliente[index];
+            let detalhesDiv = $(this).closest('li').find('.detalhes');
+
+            if (detalhesDiv.length === 0) {
+                let detalhesHTML = `
+                    <div class="detalhes" style="display: none;">
+                        <ul>
+                            ${pedido.itens.map(item => `
+                                <li>${item.nome} - Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+                $(this).closest('li').append(detalhesHTML);
+                $(this).closest('li').find('.detalhes').slideDown();
+                $(this).text('Minimizar Detalhes');
+            } else {
+                detalhesDiv.slideUp(function() {
+                    detalhesDiv.remove();
+                });
+                $(this).text('Ver Detalhes');
+            }
+        });
+
+        // Função para gerar e baixar o PDF de todos os comprovantes
+        $('#btnDownloadTodosComprovantes').click(function() {
+            let clienteNome = $('#clienteNome').text();
+            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let pedidosCliente = pedidos.filter(pedido => pedido.cliente === clienteNome);
+
+            let doc = new jsPDF();
+            let margin = 10;
+            let pageHeight = doc.internal.pageSize.height;
+            let y = margin;
+
+            doc.text(`Comprovantes de Compras - ${clienteNome}`, margin, y);
+            y += 10;
+
+            pedidosCliente.forEach((pedido, index) => {
+                doc.text(`Pedido ${index + 1}`, margin, y);
+                y += 10;
+                doc.text(`Data e Hora: ${pedido.dataHora}`, margin, y);
+                y += 10;
+                doc.text(`Itens:`, margin, y);
+                y += 10;
+
+                pedido.itens.forEach((item, itemIndex) => {
+                    let itemText = `${item.nome} - Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
+                    let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
+                    doc.text(itemLines, margin, y);
+                    y += itemLines.length * 10;
+
+                    if (y > pageHeight - margin) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                });
+
+                doc.text(`Total do Pedido: R$ ${pedido.total.toFixed(2)}`, margin, y);
+                y += 10;
+
+                if (y > pageHeight - margin) {
+                    doc.addPage();
+                    y = margin;
+                }
+            });
+
+            doc.save(`${clienteNome}_Comprovantes.pdf`);
+        });
+
+        // Função para gerar e baixar o PDF de um único comprovante
+        $('#comprovanteCompras').on('click', '.btn-download-comprovante', function() {
+            let clienteNome = $('#clienteNome').text();
+            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let pedidosCliente = pedidos.filter(pedido => pedido.cliente === clienteNome);
+            let index = $(this).data('index');
+            let pedido = pedidosCliente[index];
+
+            let doc = new jsPDF();
+            let margin = 10;
+            let pageHeight = doc.internal.pageSize.height;
+            let y = margin;
+
+            doc.text(`Comprovante de Compra - ${clienteNome}`, margin, y);
+            y += 10;
+            doc.text(`Pedido ${index + 1}`, margin, y);
+            y += 10;
+            doc.text(`Data e Hora: ${pedido.dataHora}`, margin, y);
+            y += 10;
+            doc.text(`Itens:`, margin, y);
+            y += 10;
+
+            pedido.itens.forEach((item, itemIndex) => {
+                let itemText = `${item.nome} - Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
+                let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
+                doc.text(itemLines, margin, y);
+                y += itemLines.length * 10;
+
+                if (y > pageHeight - margin) {
+                    doc.addPage();
+                    y = margin;
+                }
+            });
+
+            doc.text(`Total do Pedido: R$ ${pedido.total.toFixed(2)}`, margin, y);
+
+            doc.save(`${clienteNome}_Pedido_${index + 1}.pdf`);
         });
 
         // Carregar a lista de clientes ao carregar a página
