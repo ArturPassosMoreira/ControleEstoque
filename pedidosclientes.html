@@ -81,7 +81,7 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -149,7 +149,7 @@
                     <div class="detalhes" style="display: none;">
                         <ul>
                             ${pedido.itens.map(item => `
-                                <li>${item.nome} - Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}</li>
+                                <li>${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}</li>
                             `).join('')}
                         </ul>
                     </div>
@@ -188,7 +188,7 @@
                 y += 10;
 
                 pedido.itens.forEach((item, itemIndex) => {
-                    let itemText = `${item.nome} - Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
+                    let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
                     let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
                     doc.text(itemLines, margin, y);
                     y += itemLines.length * 10;
@@ -234,7 +234,7 @@
             y += 10;
 
             pedido.itens.forEach((item, itemIndex) => {
-                let itemText = `${item.nome} - Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
+                let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
                 let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
                 doc.text(itemLines, margin, y);
                 y += itemLines.length * 10;

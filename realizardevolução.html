@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Devolução</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .btn-home, .btn-cart {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            margin-left: 15px;
+        }
+        h1 {
+            margin: auto;
+            margin-left: -1vh;
+        }
+        .form-group.inline-group {
+            display: flex;
+            align-items: flex-end;
+        }
+        .form-group.inline-group > div {
+            flex: 1;
+            padding-right: 10px;
+        }
+        .form-group.inline-group > div:last-child {
+            padding-right: 0;
+        }
+    </style>
+</head>
+<body>
+    <header class="d-flex justify-content-between align-items-center">
+        <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
+        <h1>Devoluções</h1>
+    </header>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Realizar Devolução</h1>
+        <form id="formDevolucao">
+            <div class="form-group">
+                <label for="produto">Nome do Produto:</label>
+                <select class="form-control" id="produto" required>
+                    <option value="">Selecione o produto</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" required>
+                    <option value="">Selecione o tipo</option>
+                    <option value="Costa">Costa</option>
+                    <option value="Carrinho">Carrinho</option>
+                    <option value="Furada">Furada</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tamanho">Tamanho:</label>
+                <select class="form-control" id="tamanho" required>
+                    <option value="">Selecione o tamanho</option>
+                    <option value="P">P</option>
+                    <option value="M">M</option>
+                    <option value="G">G</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="divisoria">Divisória</label>
+                <select class="form-control" id="divisoria" required>
+                    <option value="">Selecione a divisória</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="personagem">Personagem:</label>
+                <select class="form-control" id="personagem" required>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" class="form-control" id="quantidade" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="estoque">Em Estoque:</label>
+                <input type="text" class="form-control" id="estoque" readonly>
+            </div>
+            <div class="form-group">
+                <label for="valor">Valor (R$):</label>
+                <input type="text" class="form-control" id="valor" readonly>
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar à Devolução</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let valores = JSON.parse(localStorage.getItem('valores')) || [];
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let selectProduto = $('#produto');
+            let selectPersonagem = $('#personagem');
+
+            let personagens = JSON.parse(localStorage.getItem('personagens')) || [];
+            personagens.forEach(function(personagem) {
+                selectPersonagem.append(`<option value="${personagem}">${personagem}</option>`);
+            });
+
+            valores.forEach(function(valor) {
+                selectProduto.append(`<option value="${valor.nome}" data-tipo="${valor.tipo}" data-tamanho="${valor.tamanho}" data-divisoria="${valor.divisoria}" data-valor="${valor.valor.toFixed(2)}">${valor.nome}</option>`);
+            });
+
+            $('#produto, #tipo, #tamanho, #divisoria, #personagem').change(function() {
+                atualizarValor();
+                atualizarEstoque();
+            });
+
+            function atualizarValor() {
+                let nome = $('#produto').val();
+                let tipo = $('#tipo').val();
+                let tamanho = $('#tamanho').val();
+                let divisoria = $('#divisoria').val();
+
+                let valorEncontrado = valores.find(v => v.nome === nome && v.tipo === tipo && v.tamanho === tamanho && v.divisoria === divisoria);
+                if (valorEncontrado) {
+                    $('#valor').val(valorEncontrado.valor.toFixed(2));
+                } else {
+                    $('#valor').val('');
+                }
+            }
+
+            function atualizarEstoque() {
+                let nome = $('#produto').val();
+                let tipo = $('#tipo').val();
+                let tamanho = $('#tamanho').val();
+                let divisoria = $('#divisoria').val();
+                let personagem = $('#personagem').val();
+
+                let produtoEncontrado = produtos.find(p => p.nome === nome && p.tipo === tipo && p.tamanho === tamanho && p.reparticoes === divisoria && p.personagem === personagem);
+                if (produtoEncontrado) {
+                    $('#estoque').val(produtoEncontrado.quantidade);
+                } else {
+                    $('#estoque').val('0');
+                }
+            }
+
+            $('#formDevolucao').submit(function(event) {
+                event.preventDefault();
+                adicionarAoEstoque();
+                alert('Produto devolvido com sucesso!');
+                $('#formDevolucao')[0].reset();
+                $('#produto').change(); // Trigger change to refresh stock and value
+            });
+
+            function adicionarAoEstoque() {
+                let nome = $('#produto').val();
+                let tipo = $('#tipo').val();
+                let tamanho = $('#tamanho').val();
+                let divisoria = $('#divisoria').val();
+                let personagem = $('#personagem').val();
+                let quantidade = parseInt($('#quantidade').val()) || 0;
+
+                let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+                let produtoEncontrado = produtos.find(p => p.nome === nome && p.tipo === tipo && p.tamanho === tamanho && p.reparticoes === divisoria && p.personagem === personagem);
+
+                if (produtoEncontrado) {
+                    produtoEncontrado.quantidade += quantidade;
+                } else {
+                    produtos.push({ nome, tipo, tamanho, reparticoes: divisoria, personagem, quantidade });
+                }
+
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+            }
+        });
+    </script>
+</body>
+</html>
