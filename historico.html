@@ -53,7 +53,7 @@
             margin: 0;
             flex-grow: 1;
         }
-        h1{
+        h1 {
             margin: auto;
         }
     </style>
@@ -62,7 +62,7 @@
     <header class="d-flex justify-content-between align-items-center">
         <!-- Botão de ir para index.html com ícone de casa -->
         <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
-        <h2>Histórico de Cadastro-Utopia </h2>
+        <h2>Histórico de Cadastro-Utopia</h2>
     </header>
     <div class="container">
         <div class="btn-group">
@@ -84,7 +84,7 @@
                         <th>DATA</th>
                     </tr>
                 </thead>
-                <tbody id="estoqueBody">
+                <tbody id="historicoBody">
                     <!-- Dados dos produtos serão inseridos aqui -->
                 </tbody>
             </table>
@@ -98,11 +98,11 @@
 
     <script>
         // Função para carregar os produtos do localStorage e exibir na tabela
-        function carregarEstoque() {
-            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-            let estoqueBody = $('#estoqueBody');
-            estoqueBody.empty(); // Limpa o corpo da tabela
-            produtos.forEach(function(produto, index) {
+        function carregarHistorico() {
+            let historico = JSON.parse(localStorage.getItem('historico')) || [];
+            let historicoBody = $('#historicoBody');
+            historicoBody.empty(); // Limpa o corpo da tabela
+            historico.forEach(function(produto, index) {
                 let newRow = $('<tr>');
                 newRow.append('<td><input type="checkbox" onchange="marcarLinha(this)"></td>'); // Adiciona checkbox para cada linha
                 newRow.append('<td>' + produto.nome + '</td>');
@@ -112,13 +112,13 @@
                 newRow.append('<td>' + produto.tamanho + '</td>');
                 newRow.append('<td>' + produto.reparticoes + '</td>');
                 newRow.append('<td>' + produto.horaClique + '</td>');
-                estoqueBody.append(newRow);
+                historicoBody.append(newRow);
             });
         }
 
         // Marcar todas as linhas
         function marcarTodos(checkbox) {
-            let checkboxes = document.querySelectorAll('#estoqueBody input[type="checkbox"]');
+            let checkboxes = document.querySelectorAll('#historicoBody input[type="checkbox"]');
             checkboxes.forEach(function(cb) {
                 cb.checked = checkbox.checked;
                 marcarLinha(cb);
@@ -137,7 +137,7 @@
 
         // Selecionar ou desselecionar todas as linhas
         function toggleSelecionarLinhas() {
-            let checkboxes = document.querySelectorAll('#estoqueBody input[type="checkbox"]');
+            let checkboxes = document.querySelectorAll('#historicoBody input[type="checkbox"]');
             let todosMarcados = true;
             checkboxes.forEach(function(cb) {
                 if (!cb.checked) {
@@ -152,17 +152,17 @@
 
         // Apagar itens selecionados
         function apagarSelecionados() {
-            let selecionados = document.querySelectorAll('#estoqueBody input[type="checkbox"]:checked');
+            let selecionados = document.querySelectorAll('#historicoBody input[type="checkbox"]:checked');
             if (selecionados.length > 0) {
                 if (confirm('Tem certeza que deseja apagar os produtos selecionados?')) {
                     selecionados.forEach(function(checkbox) {
                         let row = checkbox.closest('tr');
                         row.remove();
                         // Remove também do armazenamento local
-                        let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+                        let historico = JSON.parse(localStorage.getItem('historico')) || [];
                         let index = parseInt(row.querySelector('td:nth-child(2)').textContent) - 1; // Obtém o número de registro da linha
-                        produtos.splice(index, 1); // Remove o produto correspondente ao número de registro
-                        localStorage.setItem('produtos', JSON.stringify(produtos)); // Atualiza o armazenamento local
+                        historico.splice(index, 1); // Remove o produto correspondente ao número de registro
+                        localStorage.setItem('historico', JSON.stringify(historico)); // Atualiza o armazenamento local
                     });
                 }
             } else {
@@ -170,9 +170,9 @@
             }
         }
 
-        // Carregar o estoque ao carregar a página
+        // Carregar o histórico ao carregar a página
         $(document).ready(function() {
-            carregarEstoque();
+            carregarHistorico();
         });
     </script>
 

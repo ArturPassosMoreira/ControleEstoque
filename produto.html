@@ -56,7 +56,7 @@
             border: none;
             margin-left: 15px;
         }
-        h1{
+        h1 {
             margin: auto;
         }
     </style>
@@ -160,12 +160,17 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-    // Função para enviar os dados do produto para a página de estoque
+    // Função para enviar os dados do produto para a página de estoque e histórico
     function enviarParaEstoque(produto) {
         let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
         produto.registro = produtos.length + 1; // Adicionar número de registro único
         produtos.push(produto);
         localStorage.setItem('produtos', JSON.stringify(produtos));
+
+        // Adiciona o produto ao histórico
+        let historico = JSON.parse(localStorage.getItem('historico')) || [];
+        historico.push(produto);
+        localStorage.setItem('historico', JSON.stringify(historico));
     }
 
     // Carregar personagens do localStorage ao carregar a página
@@ -189,7 +194,7 @@
             nome: $('#produtoNome').val(),
             tipo: $('#produtoTipo').val(),
             personagem: $('#produtoPersonagem').val(),
-            quantidade:parseInt( $('#quantidade').val()),
+            quantidade:parseInt($('#quantidade').val()),
             tamanho: $('#tamanho').val(),
             reparticoes: $('#reparticoes').val(), // Incluir a repartição selecionada
             horaClique: new Date().toLocaleString() // Obtendo a data e hora do clique

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Vendas - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="d-flex justify-content-between align-items-center">
+        <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
+        <h1>Histórico de Vendas</h1>
+    </header>
+    <div class="container">
+        <h2>Vendas Realizadas</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Data e Hora</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Vendedor</th>
+                        <th scope="col">Itens</th>
+                        <th scope="col">Total (R$)</th>
+                    </tr>
+                </thead>
+                <tbody id="listaVendas">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Function to load sales history from localStorage and display it in the table
+        function carregarVendas() {
+            let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
+            let listaVendas = $('#listaVendas');
+            listaVendas.empty();
+
+            vendas.forEach(function(venda) {
+                let itensDetalhes = venda.itens.map(function(item) {
+                    return `
+                        <div><strong>Produto:</strong> ${item.nome}</div>
+                        <div><strong>Quantidade:</strong> ${item.quantidade}</div>
+                        <div><strong>Tipo:</strong> ${item.tipo}</div>
+                        <div><strong>Tamanho:</strong> ${item.tamanho}</div>
+                        <div><strong>Divisória:</strong> ${item.divisoria}</div>
+                        <div><strong>Personagem:</strong> ${item.personagem}</div>
+                        <div><strong>Valor Unitário (R$):</strong> ${item.valor.toFixed(2)}</div>
+                        <div><strong>Desconto (R$):</strong> ${item.desconto.toFixed(2)}</div>
+                        <div><strong>Desconto (%):</strong> ${item.descontoPorcentagem.toFixed(2)}</div>
+                    `;
+                }).join('<br>');
+
+                listaVendas.append(`
+                    <tr>
+                        <td>${venda.dataHora}</td>
+                        <td>${venda.cliente}</td>
+                        <td>${venda.vendedor}</td>
+                        <td>${itensDetalhes}</td>
+                        <td>${venda.total.toFixed(2)}</td>
+                    </tr>
+                `);
+            });
+        }
+
+        // Load sales history when the page is loaded
+        $(document).ready(function() {
+            carregarVendas();
+        });
+    </script>
+</body>
+</html>

@@ -243,45 +243,51 @@
                 selectVendedor.append(`<option value="${vendedor.nome}">${vendedor.nome}</option>`);
             });
         }
+// Function to finalize the purchase and update the stock
+$('#finalizarCompra').click(function() {
+    let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
+    let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+    let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
+    let clienteSelecionado = $('#selectCliente').val();
+    let vendedorSelecionado = $('#selectVendedor').val();
 
-        // Função para finalizar a compra e atualizar o estoque
-        $('#finalizarCompra').click(function() {
-            let itensCarrinho = JSON.parse(localStorage.getItem('itensCarrinho')) || [];
-            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-            let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
-            let clienteSelecionado = $('#selectCliente').val();
-            let vendedorSelecionado = $('#selectVendedor').val();
-            
-            if (!clienteSelecionado) {
-                alert('Selecione um cliente antes de finalizar a compra.');
-                return;
-            }
+    if (!clienteSelecionado) {
+        alert('Selecione um cliente antes de finalizar a compra.');
+        return;
+    }
 
-            // Atualizar estoque
-            itensCarrinho.forEach(function(item) {
-                let produtoEncontrado = produtos.find(p => p.nome === item.nome && p.tipo === item.tipo && p.tamanho === item.tamanho && p.reparticoes === item.divisoria && p.personagem === item.personagem);
-                if (produtoEncontrado) {
-                    produtoEncontrado.quantidade -= item.quantidade;
-                }
-            });
+    // Update stock
+    itensCarrinho.forEach(function(item) {
+        let produtoEncontrado = produtos.find(p => p.nome === item.nome && p.tipo === item.tipo && p.tamanho === item.tamanho && p.reparticoes === item.divisoria && p.personagem === item.personagem);
+        if (produtoEncontrado) {
+            produtoEncontrado.quantidade -= item.quantidade;
+        }
+    });
 
-            // Agrupar itens do carrinho em um pedido
-            let novoPedido = {
-                cliente: clienteSelecionado,
-                vendedor: vendedorSelecionado,
-                dataHora: new Date().toLocaleString(),
-                itens: itensCarrinho,
-                total: itensCarrinho.reduce((acc, item) => acc + ((item.quantidade * item.valor) - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)), 0)
-            };
+    // Group cart items into an order
+    let novoPedido = {
+        cliente: clienteSelecionado,
+        vendedor: vendedorSelecionado,
+        dataHora: new Date().toLocaleString(),
+        itens: itensCarrinho,
+        total: itensCarrinho.reduce((acc, item) => acc + ((item.quantidade * item.valor) - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)), 0)
+    };
 
-            pedidos.push(novoPedido);
+    pedidos.push(novoPedido);
 
-            localStorage.setItem('produtos', JSON.stringify(produtos));
-            localStorage.setItem('itensCarrinho', JSON.stringify([])); // Clear cart
-            localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Save pedidos
-            carregarItensCarrinho();
-            alert('Compra finalizada com sucesso e estoque atualizado!');
-        });
+    // Save the order to vendas
+    vendas.push(novoPedido);
+
+    localStorage.setItem('produtos', JSON.stringify(produtos));
+    localStorage.setItem('itensCarrinho', JSON.stringify([])); // Clear cart
+    localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Save orders
+    localStorage.setItem('vendas', JSON.stringify(vendas)); // Save sales history
+
+    carregarItensCarrinho();
+    alert('Compra finalizada com sucesso e estoque atualizado!');
+});
+
 
         // Carregar os itens do carrinho, clientes e vendedores ao carregar a página
         $(document).ready(function() {
