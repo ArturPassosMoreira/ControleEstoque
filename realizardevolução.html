@@ -34,12 +34,26 @@
         .form-group.inline-group > div:last-child {
             padding-right: 0;
         }
+        .cart-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <header class="d-flex justify-content-between align-items-center">
         <a href="index.html" class="btn btn-home mr-auto"><i class="fas fa-home"></i></a>
         <h1>Devoluções</h1>
+        <div class="position-relative">
+            <a href="carrinhodevolucoes.html" target="_self" class="btn btn-cart"><i class="fas fa-shopping-cart"></i></a>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
     </header>
     <div class="container">
         <h1 class="mt-5 mb-4">Realizar Devolução</h1>
@@ -71,7 +85,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="divisoria">Divisória</label>
+                <label for="divisoria">Divisória:</label>
                 <select class="form-control" id="divisoria" required>
                     <option value="">Selecione a divisória</option>
                     <option value="1">1</option>
@@ -92,12 +106,8 @@
                 <input type="number" class="form-control" id="quantidade" min="1" required>
             </div>
             <div class="form-group">
-                <label for="estoque">Em Estoque:</label>
-                <input type="text" class="form-control" id="estoque" readonly>
-            </div>
-            <div class="form-group">
                 <label for="valor">Valor (R$):</label>
-                <input type="text" class="form-control" id="valor" readonly>
+                <input type="number" class="form-control" id="valor" min="0.01" step="0.01" required>
             </div>
             <button type="submit" class="btn btn-primary">Adicionar à Devolução</button>
         </form>
@@ -123,23 +133,8 @@
             });
 
             $('#produto, #tipo, #tamanho, #divisoria, #personagem').change(function() {
-                atualizarValor();
                 atualizarEstoque();
             });
-
-            function atualizarValor() {
-                let nome = $('#produto').val();
-                let tipo = $('#tipo').val();
-                let tamanho = $('#tamanho').val();
-                let divisoria = $('#divisoria').val();
-
-                let valorEncontrado = valores.find(v => v.nome === nome && v.tipo === tipo && v.tamanho === tamanho && v.divisoria === divisoria);
-                if (valorEncontrado) {
-                    $('#valor').val(valorEncontrado.valor.toFixed(2));
-                } else {
-                    $('#valor').val('');
-                }
-            }
 
             function atualizarEstoque() {
                 let nome = $('#produto').val();
@@ -158,30 +153,40 @@
 
             $('#formDevolucao').submit(function(event) {
                 event.preventDefault();
-                adicionarAoEstoque();
-                alert('Produto devolvido com sucesso!');
+                adicionarAoCarrinhoDevolucao();
+                alert('Produto adicionado à devolução com sucesso!');
                 $('#formDevolucao')[0].reset();
                 $('#produto').change(); // Trigger change to refresh stock and value
             });
 
-            function adicionarAoEstoque() {
+            function adicionarAoCarrinhoDevolucao() {
                 let nome = $('#produto').val();
                 let tipo = $('#tipo').val();
                 let tamanho = $('#tamanho').val();
                 let divisoria = $('#divisoria').val();
                 let personagem = $('#personagem').val();
                 let quantidade = parseInt($('#quantidade').val()) || 0;
+                let valor = parseFloat($('#valor').val()) || 0;
 
-                let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-                let produtoEncontrado = produtos.find(p => p.nome === nome && p.tipo === tipo && p.tamanho === tamanho && p.reparticoes === divisoria && p.personagem === personagem);
+                let itemDevolucao = {
+                    nome,
+                    tipo,
+                    tamanho,
+                    divisoria,
+                    personagem,
+                    quantidade,
+                    valor
+                };
 
-                if (produtoEncontrado) {
-                    produtoEncontrado.quantidade += quantidade;
-                } else {
-                    produtos.push({ nome, tipo, tamanho, reparticoes: divisoria, personagem, quantidade });
-                }
+                let itensDevolucao = JSON.parse(localStorage.getItem('itensDevolucao')) || [];
+                itensDevolucao.push(itemDevolucao);
+                localStorage.setItem('itensDevolucao', JSON.stringify(itensDevolucao));
+                let cartCount = parseInt($('#cartCount').text()) || 0;
+                $('#cartCount').text(cartCount + 1);
+            }
 
-                localStorage.setItem('produtos', JSON.stringify(produtos));
+            if (selectProduto.children('option').length > 1) {
+                selectProduto.val(selectProduto.children('option').eq(1).val()).change();
             }
         });
     </script>

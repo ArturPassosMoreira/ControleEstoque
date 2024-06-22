@@ -75,7 +75,20 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Comprovante de Devoluções</h5>
+                            <ul class="list-group" id="comprovanteDevolucoes">
+                                <!-- Devoluções serão adicionadas aqui dinamicamente -->
+                            </ul>
+                            <div class="text-right">
+                                <button class="btn btn-download" id="btnDownloadTodosComprovantesDevolucao">Baixar Todos Comprovantes</button>
+                            </div>
+                        </div>
+                    </div>
                     <h4>Total de Compras: R$ <span id="totalCompras"></span></h4>
+                    <h4>Total de Devoluções: R$ <span id="totalDevolucoes"></span></h4>
+                    <h4>Total Líquido: R$ <span id="totalLiquido"></span></h4>
                 </div>
             </div>
         </div>
@@ -92,13 +105,14 @@
         function carregarListaClientes() {
             let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
             let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let devolucoes = JSON.parse(localStorage.getItem('devolucoes')) || [];
             let listaClientes = $('#listaClientes');
             listaClientes.empty();
 
-            // Obter os clientes que têm pedidos
-            let clientesComPedidos = clientes.filter(cliente => pedidos.some(pedido => pedido.cliente === cliente.nome));
+            // Obter os clientes que têm pedidos ou devoluções
+            let clientesComPedidosOuDevolucoes = clientes.filter(cliente => pedidos.some(pedido => pedido.cliente === cliente.nome) || devolucoes.some(devolucao => devolucao.cliente === cliente.nome));
 
-            clientesComPedidos.forEach(function(cliente) {
+            clientesComPedidosOuDevolucoes.forEach(function(cliente) {
                 listaClientes.append(`
                     <a href="#" class="list-group-item list-group-item-action" data-cliente-nome="${cliente.nome}">${cliente.nome}</a>
                 `);
@@ -110,13 +124,18 @@
             e.preventDefault();
             let clienteNome = $(this).data('cliente-nome');
             let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let devolucoes = JSON.parse(localStorage.getItem('devolucoes')) || [];
             $('#clienteNome').text(clienteNome);
 
             let totalCompras = 0;
+            let totalDevolucoes = 0;
             let comprovanteCompras = $('#comprovanteCompras');
+            let comprovanteDevolucoes = $('#comprovanteDevolucoes');
             comprovanteCompras.empty();
+            comprovanteDevolucoes.empty();
 
             let pedidosCliente = pedidos.filter(pedido => pedido.cliente === clienteNome);
+            let devolucoesCliente = devolucoes.filter(devolucao => devolucao.cliente === clienteNome);
 
             pedidosCliente.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora)).forEach(function(pedido, index) {
                 let pedidoHTML = `
@@ -131,25 +150,42 @@
                 totalCompras += pedido.total;
             });
 
+            devolucoesCliente.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora)).forEach(function(devolucao, index) {
+                let devolucaoHTML = `
+                    <li class="list-group-item" data-devolucao-index="${index}">
+                        <div><strong>Data e Hora:</strong> ${devolucao.dataHora}</div>
+                        <div><strong>Itens:</strong> <button class="btn btn-info btn-sm btn-ver-detalhes" data-index="${index}">Ver Detalhes</button> <span class="btn-toggle-details" data-index="${index}">&#9660;</span></div>
+                        <div><strong>Total da Devolução:</strong> R$ ${devolucao.total.toFixed(2)}</div>
+                        <button class="btn btn-download btn-sm btn-download-comprovante-devolucao" data-index="${index}">Baixar Comprovante</button>
+                    </li>
+                `;
+                comprovanteDevolucoes.append(devolucaoHTML);
+                totalDevolucoes += devolucao.total;
+            });
+
             $('#totalCompras').text(totalCompras.toFixed(2));
+            $('#totalDevolucoes').text(totalDevolucoes.toFixed(2));
+            $('#totalLiquido').text((totalCompras - totalDevolucoes).toFixed(2));
             $('#detalhesCliente').show();
         });
 
         // Função para mostrar ou esconder detalhes dos itens ao clicar no botão "Ver Detalhes"
-        $('#comprovanteCompras').on('click', '.btn-ver-detalhes, .btn-toggle-details', function() {
+        $('#comprovanteCompras, #comprovanteDevolucoes').on('click', '.btn-ver-detalhes, .btn-toggle-details', function() {
             let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+            let devolucoes = JSON.parse(localStorage.getItem('devolucoes')) || [];
             let clienteNome = $('#clienteNome').text();
             let pedidosCliente = pedidos.filter(pedido => pedido.cliente === clienteNome);
+            let devolucoesCliente = devolucoes.filter(devolucao => devolucao.cliente === clienteNome);
             let index = $(this).data('index');
-            let pedido = pedidosCliente[index];
+            let item = pedidosCliente[index] || devolucoesCliente[index];
             let detalhesDiv = $(this).closest('li').find('.detalhes');
 
             if (detalhesDiv.length === 0) {
                 let detalhesHTML = `
                     <div class="detalhes" style="display: none;">
                         <ul>
-                            ${pedido.itens.map(item => `
-                                <li>${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}</li>
+                            ${item.itens.map(i => `
+                                <li>${i.nome} - Quantidade: ${i.quantidade}, Tipo: ${i.tipo}, Tamanho: ${i.tamanho}, Divisória: ${i.divisoria}, Personagem: ${i.personagem}, Valor Unitário: R$ ${i.valor.toFixed(2)}, Total: R$ ${(i.quantidade * i.valor).toFixed(2)}</li>
                             `).join('')}
                         </ul>
                     </div>
@@ -165,7 +201,7 @@
             }
         });
 
-        // Função para gerar e baixar o PDF de todos os comprovantes
+        // Função para gerar e baixar o PDF de todos os comprovantes de compras
         $('#btnDownloadTodosComprovantes').click(function() {
             let clienteNome = $('#clienteNome').text();
             let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
@@ -188,7 +224,7 @@
                 y += 10;
 
                 pedido.itens.forEach((item, itemIndex) => {
-                    let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
+                    let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor).toFixed(2)}`;
                     let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
                     doc.text(itemLines, margin, y);
                     y += itemLines.length * 10;
@@ -208,10 +244,56 @@
                 }
             });
 
-            doc.save(`${clienteNome}_Comprovantes.pdf`);
+            doc.save(`${clienteNome}_Comprovantes_Compras.pdf`);
         });
 
-        // Função para gerar e baixar o PDF de um único comprovante
+        // Função para gerar e baixar o PDF de todos os comprovantes de devolução
+        $('#btnDownloadTodosComprovantesDevolucao').click(function() {
+            let clienteNome = $('#clienteNome').text();
+            let devolucoes = JSON.parse(localStorage.getItem('devolucoes')) || [];
+            let devolucoesCliente = devolucoes.filter(devolucao => devolucao.cliente === clienteNome);
+
+            let doc = new jsPDF();
+            let margin = 10;
+            let pageHeight = doc.internal.pageSize.height;
+            let y = margin;
+
+            doc.text(`Comprovantes de Devoluções - ${clienteNome}`, margin, y);
+            y += 10;
+
+            devolucoesCliente.forEach((devolucao, index) => {
+                doc.text(`Devolução ${index + 1}`, margin, y);
+                y += 10;
+                doc.text(`Data e Hora: ${devolucao.dataHora}`, margin, y);
+                y += 10;
+                doc.text(`Itens:`, margin, y);
+                y += 10;
+
+                devolucao.itens.forEach((item, itemIndex) => {
+                    let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor).toFixed(2)}`;
+                    let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
+                    doc.text(itemLines, margin, y);
+                    y += itemLines.length * 10;
+
+                    if (y > pageHeight - margin) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                });
+
+                doc.text(`Total da Devolução: R$ ${devolucao.total.toFixed(2)}`, margin, y);
+                y += 10;
+
+                if (y > pageHeight - margin) {
+                    doc.addPage();
+                    y = margin;
+                }
+            });
+
+            doc.save(`${clienteNome}_Comprovantes_Devolucoes.pdf`);
+        });
+
+        // Função para gerar e baixar o PDF de um único comprovante de compra
         $('#comprovanteCompras').on('click', '.btn-download-comprovante', function() {
             let clienteNome = $('#clienteNome').text();
             let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
@@ -234,7 +316,7 @@
             y += 10;
 
             pedido.itens.forEach((item, itemIndex) => {
-                let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Desconto: R$ ${item.desconto.toFixed(2)}, Desconto (%): ${item.descontoPorcentagem.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor - item.desconto - (item.descontoPorcentagem / 100 * item.quantidade * item.valor)).toFixed(2)}`;
+                let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor).toFixed(2)}`;
                 let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
                 doc.text(itemLines, margin, y);
                 y += itemLines.length * 10;
@@ -248,6 +330,45 @@
             doc.text(`Total do Pedido: R$ ${pedido.total.toFixed(2)}`, margin, y);
 
             doc.save(`${clienteNome}_Pedido_${index + 1}.pdf`);
+        });
+
+        // Função para gerar e baixar o PDF de um único comprovante de devolução
+        $('#comprovanteDevolucoes').on('click', '.btn-download-comprovante-devolucao', function() {
+            let clienteNome = $('#clienteNome').text();
+            let devolucoes = JSON.parse(localStorage.getItem('devolucoes')) || [];
+            let devolucoesCliente = devolucoes.filter(devolucao => devolucao.cliente === clienteNome);
+            let index = $(this).data('index');
+            let devolucao = devolucoesCliente[index];
+
+            let doc = new jsPDF();
+            let margin = 10;
+            let pageHeight = doc.internal.pageSize.height;
+            let y = margin;
+
+            doc.text(`Comprovante de Devolução - ${clienteNome}`, margin, y);
+            y += 10;
+            doc.text(`Devolução ${index + 1}`, margin, y);
+            y += 10;
+            doc.text(`Data e Hora: ${devolucao.dataHora}`, margin, y);
+            y += 10;
+            doc.text(`Itens:`, margin, y);
+            y += 10;
+
+            devolucao.itens.forEach((item, itemIndex) => {
+                let itemText = `${item.nome} - Quantidade: ${item.quantidade}, Tipo: ${item.tipo}, Tamanho: ${item.tamanho}, Divisória: ${item.divisoria}, Personagem: ${item.personagem}, Valor Unitário: R$ ${item.valor.toFixed(2)}, Total: R$ ${(item.quantidade * item.valor).toFixed(2)}`;
+                let itemLines = doc.splitTextToSize(itemText, 180); // Automatic line break
+                doc.text(itemLines, margin, y);
+                y += itemLines.length * 10;
+
+                if (y > pageHeight - margin) {
+                    doc.addPage();
+                    y = margin;
+                }
+            });
+
+            doc.text(`Total da Devolução: R$ ${devolucao.total.toFixed(2)}`, margin, y);
+
+            doc.save(`${clienteNome}_Devolucao_${index + 1}.pdf`);
         });
 
         // Carregar a lista de clientes ao carregar a página

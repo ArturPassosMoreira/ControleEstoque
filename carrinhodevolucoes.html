@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Carrinho de Devoluções - Utopia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .btn-editar, .btn-excluir {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .btn-cliente {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-cliente:hover {
+            background-color: #0056b3;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+        .modal-header {
+            border-bottom: none;
+        }
+        .modal-title {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-home {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+        @media (max-width: 767px) {
+            .table-responsive {
+                margin-bottom: 15px;
+            }
+            .table-responsive .table {
+                margin-bottom: 0;
+            }
+            .btn {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="d-flex justify-content-between align-items-center">
+        <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
+        <h1>Gerenciamento de Carrinho de Devoluções</h1>
+    </header>
+    <div class="container">
+        <h2>Carrinho de Devoluções</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Detalhes</th>
+                                <th scope="col">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaItens">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Cliente</h5>
+                        <div class="form-group">
+                            <select class="form-control" id="selectCliente">
+                            </select>
+                        </div>
+                        <h5 class="card-title">Vendedor</h5>
+                        <div class="form-group">
+                            <select class="form-control" id="selectVendedor">
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block" id="finalizarDevolucao">Finalizar Devolução</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditarQuantidade" tabindex="-1" role="dialog" aria-labelledby="modalEditarQuantidadeLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarQuantidadeLabel">Editar Quantidade</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarQuantidade">
+                        <div class="form-group">
+                            <label for="quantidadeEdit">Quantidade:</label>
+                            <input type="number" class="form-control" id="quantidadeEdit" min="1" required>
+                        </div>
+                        <input type="hidden" id="itemIndex">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarQuantidade">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Função para carregar os itens do localStorage e exibi-los na tabela
+        function carregarItensDevolucao() {
+            let itensDevolucao = JSON.parse(localStorage.getItem('itensDevolucao')) || [];
+            let listaItens = $('#listaItens');
+            listaItens.empty();
+            itensDevolucao.forEach(function(item, index) {
+                listaItens.append(`
+                    <tr id="item-${index}">
+                        <td>${item.nome}</td>
+                        <td>
+                            <div><strong>Quantidade:</strong> ${item.quantidade}</div>
+                            <div><strong>Tipo:</strong> ${item.tipo}</div>
+                            <div><strong>Tamanho:</strong> ${item.tamanho}</div>
+                            <div><strong>Divisória:</strong> ${item.divisoria}</div>
+                            <div><strong>Personagem:</strong> ${item.personagem}</div>
+                            <div><strong>Valor Unitário (R$):</strong> ${item.valor.toFixed(2)}</div>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-editar" data-index="${index}" data-toggle="modal" data-target="#modalEditarQuantidade">Editar</button>
+                            <button class="btn btn-danger btn-excluir" data-index="${index}">Excluir</button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            // Adicionar evento de clique em cada botão de editar
+            listaItens.on('click', '.btn-editar', function() {
+                let index = $(this).data('index');
+                $('#quantidadeEdit').val(itensDevolucao[index].quantidade);
+                $('#itemIndex').val(index);
+            });
+
+            // Adicionar evento de clique em cada botão de excluir
+            listaItens.on('click', '.btn-excluir', function() {
+                let index = $(this).data('index');
+                if (confirm("Tem certeza de que deseja excluir este item do carrinho?")) {
+                    excluirItemDevolucao(index);
+                }
+            });
+        }
+
+        // Função para excluir um item do carrinho
+        function excluirItemDevolucao(index) {
+            let itensDevolucao = JSON.parse(localStorage.getItem('itensDevolucao')) || [];
+            itensDevolucao.splice(index, 1); // Remove o item do array
+            localStorage.setItem('itensDevolucao', JSON.stringify(itensDevolucao));
+            carregarItensDevolucao(); // Atualiza a lista de itens do carrinho
+            alert('Item do carrinho excluído com sucesso!');
+        }
+
+        // Função para salvar as alterações de quantidade do item
+        $('#btnSalvarQuantidade').click(function() {
+            let itensDevolucao = JSON.parse(localStorage.getItem('itensDevolucao')) || [];
+            let index = $('#itemIndex').val();
+            itensDevolucao[index].quantidade = $('#quantidadeEdit').val();
+            localStorage.setItem('itensDevolucao', JSON.stringify(itensDevolucao));
+            $('#modalEditarQuantidade').modal('hide');
+            carregarItensDevolucao(); // Atualiza a lista de itens do carrinho
+            alert('Quantidade do item atualizada com sucesso!');
+        });
+
+        // Function to finalize the return and update the stock
+        $('#finalizarDevolucao').click(function() {
+            let itensDevolucao = JSON.parse(localStorage.getItem('itensDevolucao')) || [];
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let devolucoes = JSON.parse(localStorage.getItem('devolucoes')) || [];
+            let clienteSelecionado = $('#selectCliente').val();
+            let vendedorSelecionado = $('#selectVendedor').val();
+
+            if (!clienteSelecionado) {
+                alert('Selecione um cliente antes de finalizar a devolução.');
+                return;
+            }
+
+            // Update stock
+            itensDevolucao.forEach(function(item) {
+                let produtoEncontrado = produtos.find(p => p.nome === item.nome && p.tipo === item.tipo && p.tamanho === item.tamanho && p.reparticoes === item.divisoria && p.personagem === item.personagem);
+                if (produtoEncontrado) {
+                    produtoEncontrado.quantidade += item.quantidade;
+                } else {
+                    produtos.push({
+                        nome: item.nome,
+                        tipo: item.tipo,
+                        tamanho: item.tamanho,
+                        reparticoes: item.divisoria,
+                        personagem: item.personagem,
+                        quantidade: item.quantidade
+                    });
+                }
+            });
+
+            // Group cart items into a return
+            let novaDevolucao = {
+                cliente: clienteSelecionado,
+                vendedor: vendedorSelecionado,
+                dataHora: new Date().toLocaleString(),
+                itens: itensDevolucao,
+                total: itensDevolucao.reduce((acc, item) => acc + (item.quantidade * item.valor), 0)
+            };
+
+            devolucoes.push(novaDevolucao);
+
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+            localStorage.setItem('itensDevolucao', JSON.stringify([])); // Clear cart
+            localStorage.setItem('devolucoes', JSON.stringify(devolucoes)); // Save returns
+
+            carregarItensDevolucao();
+            alert('Devolução finalizada com sucesso e estoque atualizado!');
+        });
+
+        // Função para carregar os clientes do localStorage e exibi-los no dropdown
+        function carregarClientes() {
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            let selectCliente = $('#selectCliente');
+            selectCliente.empty();
+            selectCliente.append('<option value="">Selecione um cliente...</option>');
+            clientes.forEach(function(cliente) {
+                selectCliente.append(`<option value="${cliente.nome}">${cliente.nome}</option>`);
+            });
+        }
+
+        // Função para carregar os vendedores do localStorage e exibi-los no dropdown
+        function carregarVendedores() {
+            let vendedores = JSON.parse(localStorage.getItem('vendedores')) || [];
+            let selectVendedor = $('#selectVendedor');
+            selectVendedor.empty();
+            selectVendedor.append('<option value="">Selecione um vendedor...</option>');
+            vendedores.forEach(function(vendedor) {
+                selectVendedor.append(`<option value="${vendedor.nome}">${vendedor.nome}</option>`);
+            });
+        }
+
+        // Carregar os itens do carrinho, clientes e vendedores ao carregar a página
+        $(document).ready(function() {
+            carregarItensDevolucao();
+            carregarClientes();
+            carregarVendedores();
+        });
+    </script>
+</body>
+</html>
