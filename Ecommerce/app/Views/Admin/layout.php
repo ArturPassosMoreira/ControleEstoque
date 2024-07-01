@@ -11,7 +11,40 @@
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="description" content="This is an example dashboard created using build-in elements and components.">
     <meta name="msapplication-tap-highlight" content="no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <?php echo link_tag('assets/css/main.css') ?>
+    <?php echo link_tag('third/tabulator/css/tabulator_bootstrap5.min.css') ?>
+    <style>
+        .tabulator {
+            font-size: 14px;
+            box-shadow: 0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rgba(4, 9, 20, 0.03), 0 0.25rem 0.53125rem rgba(4, 9, 20, 0.05), 0 0.125rem 0.1875rem rgba(4, 9, 20, 0.03);
+            border-radius: .25rem;
+        }
+        .tabulator-print-header,
+        tabulator-print-footer {
+            text-align: center;
+        }
+
+        .table-controls {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding: 5px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            box-shadow: 0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03), 0 0.9375rem 1.40625rem rgba(4, 9, 20, 0.03), 0 0.25rem 0.53125rem rgba(4, 9, 20, 0.05), 0 0.125rem 0.1875rem rgba(4, 9, 20, 0.03);
+            border-radius: .25rem;
+        }
+
+        .table-controls button {
+            padding: 5px 10px;
+            font-weight: bold;
+            border: 1px solid #f2f2f2;
+        }
+    </style>
+    <?php echo $this->renderSection('styles') ?>
 </head>
 
 <body>
@@ -238,6 +271,10 @@
         </div>
     </div>
     <?php echo script_tag('assets/scripts/main.js') ?>
+    <?php echo script_tag('third/tabulator/js/tabulator.min.js') ?>
+    <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
     <?php echo $this->renderSection('scripts') ?>
 </body>
 

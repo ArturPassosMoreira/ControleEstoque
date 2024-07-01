@@ -36,6 +36,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
 	$routes->get('/', 'HomeController::index', ['as' => 'home']);
 	$routes->get('categorias', 'CategoriaController::index', ['as' => 'categorias']);
 	$routes->get('produtos', 'ProdutoController::index', ['as' => 'produtos']);
+	$routes->get('produtos/listar', 'ProdutoController::listar', ['as' => 'produtos_listar']);
 	$routes->get('pedidos', 'PedidoController::index', ['as' => 'pedidos']);
 	$routes->get('devolucoes', 'DevolucaoController::index', ['as' => 'devolucoes']);
 	$routes->get('clientes', 'ClienteController::index', ['as' => 'clientes']);
@@ -43,8 +44,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
 });
 
 $routes->group('auth', ['namespace' => 'App\Controllers\Auth'], function($routes) {
-	$routes->get('register', 'RegisterController::index');
-	$routes->post('register', 'RegisterController::store');
+	$routes->get('registro', 'RegistroController::index');
+	$routes->post('registro', 'RegistroController::store');
 	$routes->get('login', 'LoginController::index', ['as' => 'login']);
 	$routes->post('login/signIn', 'LoginController::signIn');
 	$routes->get('logout', 'LoginController::signOut', ['as' => 'signOut']);

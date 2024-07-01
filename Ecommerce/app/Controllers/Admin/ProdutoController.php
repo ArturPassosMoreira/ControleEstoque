@@ -18,4 +18,29 @@ class ProdutoController extends BaseController
 
 		return redirect()->route('login');
 	}
+
+	public function listar() {
+		return $this->response->setJSON([
+			"data" => [
+				[
+					"id" => 1, 
+					"nome" => "Mochila Infantil", 
+					"tipo" => "Costa", 
+					"personagem" => "Sonic", 
+					"quantidade" => 10, 
+					"tamanho" => "P", 
+					"reparticoes" => 2
+				],
+				[
+					"id" => 2, 
+					"nome" => "Mochila Infantil", 
+					"tipo" => "Costa", 
+					"personagem" => "Batman", 
+					"quantidade" => 100, 
+					"tamanho" => "M", 
+					"reparticoes" => 2
+				]
+			]
+		]);
+	}
 }

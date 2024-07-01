@@ -1,0 +1,10 @@
+{
+    "data": [
+      { "id": 1, "cor": "Branco", "modelo": "Polo Sedan", "ano": 2024, "combustivel": "Gasolina" },
+      { "id": 2, "cor": "Preto", "modelo": "Jeep Compass", "ano": 2024, "combustivel": "Híbrido" },
+      { "id": 3, "cor": "Vermelho", "modelo": "CG titan", "ano": 2025, "combustivel": "Flex" }
+    ],
+    "status": 200,
+    "message": "Ok"
+  }
+  
