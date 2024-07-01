@@ -39,5 +39,6 @@
 <?php echo $this->endSection() ?>
 
 <?php echo $this->section('scripts') ?>
-<script type="module" src="<?php echo base_url('app/modules/veiculoModule.js') ?>"></script>
+<!-- <script type="module" src="<?php echo base_url('app/modules/veiculoModule.js') ?>"></script> -->
+<script type="module" src="<?php echo base_url('app/modules/produtoModule.js') ?>"></script>
 <?php echo $this->endSection() ?>

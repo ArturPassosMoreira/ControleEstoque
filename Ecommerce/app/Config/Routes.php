@@ -36,6 +36,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
 	$routes->get('/', 'HomeController::index', ['as' => 'home']);
 	$routes->get('categorias', 'CategoriaController::index', ['as' => 'categorias']);
 	$routes->get('produtos', 'ProdutoController::index', ['as' => 'produtos']);
+	$routes->get('produtos/listar', 'ProdutoController::listar', ['as' => 'produtos_listar']);
 	$routes->get('pedidos', 'PedidoController::index', ['as' => 'pedidos']);
 	$routes->get('devolucoes', 'DevolucaoController::index', ['as' => 'devolucoes']);
 	$routes->get('clientes', 'ClienteController::index', ['as' => 'clientes']);

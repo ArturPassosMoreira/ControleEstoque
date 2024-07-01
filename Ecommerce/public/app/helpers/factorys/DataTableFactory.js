@@ -51,16 +51,16 @@ export class DataTableFactory {
     printHeader() {
       return `<div style="display: flex">
                 <img src="../logo.png"/>
-                <h2>HBA TOOLS</h2>
+                <h2>Utopia</h2>
               <div>`;
     }
   
     printFooter() {
-      return '<p>www.hbatools.com.br<p>';
+      return '<p>mochilasutopia@gmail.com<p>';
     }
   
     editIcon() {
-      return '<i class="fa fa-pencil"></i>';
+      return '<i class="fa fa-edit"></i>';
     }
   
     deleteIcon() {
