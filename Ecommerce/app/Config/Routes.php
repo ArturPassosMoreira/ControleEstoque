@@ -43,8 +43,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
 });
 
 $routes->group('auth', ['namespace' => 'App\Controllers\Auth'], function($routes) {
-	$routes->get('register', 'RegisterController::index');
-	$routes->post('register', 'RegisterController::store');
+	$routes->get('registro', 'RegistroController::index');
+	$routes->post('registro', 'RegistroController::store');
 	$routes->get('login', 'LoginController::index', ['as' => 'login']);
 	$routes->post('login/signIn', 'LoginController::signIn');
 	$routes->get('logout', 'LoginController::signOut', ['as' => 'signOut']);

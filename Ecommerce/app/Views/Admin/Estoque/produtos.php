@@ -1,7 +1,5 @@
 <?php echo $this->extend('admin/layout') ?>
 <?php echo $this->section('content') ?>
-<?php echo $this->extend('admin/layout') ?>
-<?php echo $this->section('content') ?>
 <div class="app-page-title">
     <div class="page-title-wrapper">
         <div class="page-title-heading">
@@ -33,5 +31,13 @@
         </div>
     </div>
 </div>
+
+    <div id="content-table" class="col-md-12">
+        <table id="example-table"></table>
+    </div>
+
 <?php echo $this->endSection() ?>
+
+<?php echo $this->section('scripts') ?>
+<script type="module" src="<?php echo base_url('app/modules/veiculoModule.js') ?>"></script>
 <?php echo $this->endSection() ?>
